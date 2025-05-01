@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       {/* Welcome Card */}
-      <Card className="shadow-md border-border">
+      <Card className="shadow-md border-border transition-transform duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold flex items-center gap-3 text-foreground">
             <Home className="h-7 w-7 text-primary" />
@@ -29,7 +29,7 @@ export default function HomePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {/* Types of Riddles Card */}
-        <Card className="shadow-md border-border flex flex-col">
+        <Card className="shadow-md border-border flex flex-col transition-transform duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
               <Puzzle className="h-5 w-5 text-primary" />
@@ -49,7 +49,7 @@ export default function HomePage() {
         </Card>
 
         {/* How to Think Card */}
-        <Card className="shadow-md border-border flex flex-col">
+        <Card className="shadow-md border-border flex flex-col transition-transform duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
                <Brain className="h-5 w-5 text-primary" />
@@ -71,7 +71,7 @@ export default function HomePage() {
         </Card>
 
         {/* History Card */}
-        <Card className="shadow-md border-border flex flex-col">
+        <Card className="shadow-md border-border flex flex-col transition-transform duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
                <History className="h-5 w-5 text-primary" />

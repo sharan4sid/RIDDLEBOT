@@ -205,7 +205,7 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
              <div className="flex gap-3">
                  <Tooltip>
                    <TooltipTrigger asChild>
-                     <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0}>
+                     <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0} className="transition-transform duration-150 hover:scale-110 active:scale-100">
                        <Lightbulb className="h-5 w-5" />
                      </Button>
                    </TooltipTrigger>
@@ -215,7 +215,7 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
                  </Tooltip>
                  <Tooltip>
                    <TooltipTrigger asChild>
-                     <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching}>
+                     <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching} className="transition-transform duration-150 hover:scale-110 active:scale-100">
                         {isFetching ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCcw className="h-5 w-5" />}
                      </Button>
                     </TooltipTrigger>
@@ -253,7 +253,7 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
                )} */}
              </div>
               {errors.answer && <p id="answer-error" className="text-sm text-destructive text-center">{errors.answer.message}</p>}
-             <Button type="submit" disabled={isFetching} className="w-full">
+             <Button type="submit" disabled={isFetching} className="w-full transition-transform duration-150 hover:scale-[1.02] active:scale-100">
               {isFetching ? <Loader2 className="animate-spin" /> : 'Submit Guess'}
             </Button>
           </form>
@@ -265,7 +265,7 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
              <Smile className="h-5 w-5 text-green-600 dark:text-green-400" />
              <AlertTitle className="font-bold">Congratulations!</AlertTitle>
              <AlertDescription>You solved it! The answer was <strong>{riddleData.answer}</strong>.</AlertDescription>
-             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto" variant="secondary" size="sm" disabled={isFetching}>
+             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
                {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
                Play Again {currentConstraints ? `(${currentConstraints})` : ''}
              </Button>
@@ -279,7 +279,7 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
             <AlertDescription>
               Out of tries! The correct answer was: <strong>{riddleData.answer}</strong>
             </AlertDescription>
-             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto" variant="secondary" size="sm" disabled={isFetching}>
+             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
                 {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
                Try a New Riddle {currentConstraints ? `(${currentConstraints})` : ''}
              </Button>

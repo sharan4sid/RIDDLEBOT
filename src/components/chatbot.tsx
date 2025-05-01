@@ -122,12 +122,12 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
             <div
               key={index}
               className={cn(
-                'flex items-end gap-2', // Use items-end for better bubble alignment
+                'flex items-end gap-2 group', // Use items-end for better bubble alignment, add group for hover
                 msg.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
               {msg.role === 'bot' && (
-                <Avatar className="h-8 w-8 border border-border">
+                <Avatar className="h-8 w-8 border border-border transition-transform duration-150 group-hover:scale-110">
                   {/* Optional: Add AvatarImage if you have a bot image */}
                    {/* <AvatarImage src="/path/to/bot-avatar.png" alt="Bot Avatar" /> */}
                   <AvatarFallback className="bg-primary text-primary-foreground">
@@ -137,16 +137,16 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
               )}
               <div
                 className={cn(
-                  'max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm', // Added shadow-sm
+                  'max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm transition-shadow duration-150 group-hover:shadow-md', // Added shadow-sm and hover effect
                    msg.role === 'user'
-                    ? 'bg-primary text-primary-foreground rounded-br-none' // User bubble style
-                    : 'bg-muted text-muted-foreground rounded-bl-none' // Bot bubble style
+                    ? 'bg-primary text-primary-foreground rounded-br-none hover:bg-primary/90' // User bubble style + hover
+                    : 'bg-muted text-muted-foreground rounded-bl-none hover:bg-muted/80' // Bot bubble style + hover
                 )}
               >
                 {msg.content}
               </div>
                {msg.role === 'user' && (
-                 <Avatar className="h-8 w-8 border border-border">
+                 <Avatar className="h-8 w-8 border border-border transition-transform duration-150 group-hover:scale-110">
                     {/* Optional: Add AvatarImage if you have user images */}
                     {/* <AvatarImage src="/path/to/user-avatar.png" alt="User Avatar" /> */}
                    <AvatarFallback className="bg-secondary text-secondary-foreground">
@@ -191,7 +191,7 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
             aria-describedby="chat-error"
             {...register('message')}
           />
-          <Button type="submit" size="icon" disabled={isBotTyping} aria-label="Send message" className="w-10 h-10"> {/* Ensure button size */}
+          <Button type="submit" size="icon" disabled={isBotTyping} aria-label="Send message" className="w-10 h-10 transition-transform duration-150 hover:scale-110 active:scale-100"> {/* Ensure button size and add hover */}
             {isBotTyping ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendHorizonal className="h-5 w-5" />}
           </Button>
         </form>

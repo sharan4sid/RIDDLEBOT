@@ -34,7 +34,7 @@ export default async function GamePage() {
   return (
     // Adjusted layout for better centering and spacing
     <div className="flex flex-col items-center w-full flex-grow pt-8">
-      <Card className="w-full max-w-2xl shadow-lg mb-8 border-border">
+      <Card className="w-full max-w-2xl shadow-lg mb-8 border-border transition-transform duration-200 ease-in-out hover:scale-[1.01] hover:shadow-xl">
         <CardHeader className="text-center bg-card pb-4">
           {/* Centered Title */}
           <CardTitle className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
@@ -67,8 +67,8 @@ export default async function GamePage() {
 
       {/* Accordion for Chatbot below the main card */}
        <Accordion type="single" collapsible className="w-full max-w-2xl">
-        <AccordionItem value="chatbot" className="border rounded-lg shadow-sm bg-card border-border">
-           <AccordionTrigger className="text-lg font-medium px-6 py-4 hover:no-underline hover:bg-accent/50 rounded-t-lg [&[data-state=open]]:rounded-b-none">
+        <AccordionItem value="chatbot" className="border rounded-lg shadow-sm bg-card border-border transition-shadow duration-200 ease-in-out hover:shadow-md">
+           <AccordionTrigger className="text-lg font-medium px-6 py-4 hover:no-underline hover:bg-accent/50 rounded-t-lg [&[data-state=open]]:rounded-b-none transition-colors">
             <div className="flex items-center gap-3 text-foreground">
                <MessageSquare className="h-5 w-5 text-primary" />
                <span>Need help or want to customize? Chat with our Bot!</span>
