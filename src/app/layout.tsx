@@ -34,7 +34,7 @@ export default function RootLayout({
            geistSans.variable,
            geistMono.variable
         )}
-        // suppressHydrationWarning={true} // Removed suppressHydrationWarning
+        suppressHydrationWarning={true} // Add suppressHydrationWarning to body tag
       >
         <Header /> {/* Add Header component */}
         {/* Added flex-grow to main content area */}
