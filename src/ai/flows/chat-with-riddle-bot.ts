@@ -90,25 +90,42 @@ const chatWithRiddleBotFlow = ai.defineFlow<
     inputSchema: ChatInputSchema,
     outputSchema: ChatOutputSchema,
   },
-  async (input) => {
-    const { output } = await chatWithRiddleBotPrompt(input);
+  async (input): Promise<ChatOutput> => { // Explicitly type the return promise
+    try {
+      const { output } = await chatWithRiddleBotPrompt(input);
 
-    // Ensure output is not null/undefined before returning
-    if (!output) {
-        // Provide a default fallback or throw an error
-        console.error('Chatbot flow received null output from prompt.');
+      // Ensure output is not null/undefined before returning
+      if (!output) {
+          console.error('Chatbot flow received null output from prompt.');
+          return {
+              response: "Sorry, I encountered an issue processing that. Could you please rephrase?",
+              intent: IntentEnum.enum.unknown,
+          };
+      }
+
+      // Ensure the intent is one of the allowed enum values, default to 'unknown' if not.
+      const validIntent = IntentEnum.safeParse(output.intent);
+      const finalIntent = validIntent.success ? validIntent.data : IntentEnum.enum.unknown;
+
+      return {
+          ...output,
+          intent: finalIntent,
+      };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Error in chatWithRiddleBotFlow:', errorMessage);
+
+        let userFriendlyMessage = "Sorry, I encountered an unexpected error. Please try again later.";
+        if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+            console.warn('Chatbot prompt failed due to model overload.');
+            userFriendlyMessage = "The chatbot service is currently busy. Please try sending your message again in a moment.";
+        }
+
+        // Return a valid ChatOutput object indicating an error occurred
         return {
-            response: "Sorry, I encountered an issue. Could you please rephrase?",
-            intent: 'unknown', // Use the defined enum value
+            response: userFriendlyMessage,
+            intent: IntentEnum.enum.unknown,
         };
     }
-    // Ensure the intent is one of the allowed enum values, default to 'unknown' if not.
-    const validIntent = IntentEnum.safeParse(output.intent);
-    const finalIntent = validIntent.success ? validIntent.data : IntentEnum.enum.unknown;
-
-    return {
-        ...output,
-        intent: finalIntent,
-    };
   }
 );
