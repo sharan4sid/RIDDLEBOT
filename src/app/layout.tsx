@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster'; // Import Toaster
 import Header from '@/components/header'; // Import Header component
 import { cn } from '@/lib/utils'; // Import cn for combining class names
 import { ThemeProvider } from '@/components/theme-provider'; // Import ThemeProvider
+import { RiddleProvider } from '@/context/riddle-context'; // Import RiddleProvider
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,10 +44,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange // Ensure this is true to allow custom CSS transitions
         >
-          <Header /> {/* Add Header component */}
-          {/* Added flex-grow to main content area */}
-          <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-          <Toaster /> {/* Add Toaster component */}
+          <RiddleProvider> {/* Wrap with RiddleProvider */}
+            <Header /> {/* Add Header component */}
+            {/* Added flex-grow to main content area */}
+            <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+            <Toaster /> {/* Add Toaster component */}
+          </RiddleProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,20 +1,14 @@
 'use client'; // Need to make this a client component to use useRef
 
-import { useRef } from 'react'; // Import useRef
+import { useRef, useContext } from 'react'; // Import useRef and useContext
 import { generateRiddle } from '@/ai/flows/generate-riddle';
 import RiddleSolver, { type RiddleSolverRef } from '@/components/riddle-solver'; // Import RiddleSolverRef
-import Chatbot, { type ConstraintUpdate } from '@/components/chatbot'; // Import Chatbot and ConstraintUpdate
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, MessageSquare, Puzzle } from 'lucide-react';
+import { AlertCircle, Puzzle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'; // Import Accordion components
 import type { GenerateRiddleOutput } from '@/ai/flows/generate-riddle';
 import { useState, useEffect } from 'react';
+import { RiddleContext } from '@/context/riddle-context'; // Import RiddleContext
 
 
 export default function GamePage() {
@@ -22,6 +16,7 @@ export default function GamePage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const riddleSolverRef = useRef<RiddleSolverRef>(null); // Create a ref for RiddleSolver
+  const { currentConstraints } = useContext(RiddleContext); // Get constraints from context
 
 
   // Fetch initial riddle on component mount
@@ -30,6 +25,7 @@ export default function GamePage() {
       setIsLoading(true);
       setError(null);
       try {
+        // Fetch initial riddle without specific constraints from context initially
         const riddle = await generateRiddle({ constraints: '' });
         setInitialRiddleData(riddle);
       } catch (e) {
@@ -53,14 +49,16 @@ export default function GamePage() {
     fetchInitialRiddle();
   }, []); // Empty dependency array ensures this runs only once on mount
 
-
-  // Handle constraint changes from the chatbot
-  const handleConstraintChange = (update: ConstraintUpdate) => {
-      console.log("GamePage: Received constraint update from Chatbot:", update);
-      // Combine type and value into a single constraint string for the riddle generator
-      const constraintString = `${update.type}: ${update.value}`;
-      riddleSolverRef.current?.updateConstraintsAndFetch(constraintString);
-  };
+  // Effect to fetch new riddle when constraints change in context
+  useEffect(() => {
+    if (riddleSolverRef.current && currentConstraints !== null && !isLoading) {
+      console.log("GamePage: Context constraints changed, fetching new riddle:", currentConstraints);
+      riddleSolverRef.current.updateConstraintsAndFetch(currentConstraints);
+    }
+     // Only run when currentConstraints changes (and component is not initially loading)
+     // We check isLoading to prevent fetching based on context immediately on mount
+     // before the initial riddle has even loaded.
+  }, [currentConstraints]); // Rerun when context constraints change
 
 
   return (
@@ -101,21 +99,7 @@ export default function GamePage() {
         </CardContent>
       </Card>
 
-      {/* Accordion for Chatbot below the main card */}
-       <Accordion type="single" collapsible className="w-full max-w-2xl">
-        <AccordionItem value="chatbot" className="border rounded-lg shadow-sm bg-card border-border transition-shadow duration-200 ease-in-out hover:shadow-md">
-           <AccordionTrigger className="text-lg font-medium px-6 py-4 hover:no-underline hover:bg-accent/50 rounded-t-lg [&[data-state=open]]:rounded-b-none transition-colors">
-            <div className="flex items-center gap-3 text-foreground">
-               <MessageSquare className="h-5 w-5 text-primary" />
-               <span>Need help or want to customize? Chat with our Bot!</span>
-            </div>
-           </AccordionTrigger>
-          <AccordionContent className="p-6 border-t border-border">
-              {/* Pass the handler function to the Chatbot */}
-             <Chatbot onConstraintChange={handleConstraintChange} />
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+       {/* Chatbot is now triggered from the header */}
     </div>
   );
 }

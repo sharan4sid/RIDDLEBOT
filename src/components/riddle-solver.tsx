@@ -2,7 +2,7 @@
 
 import type { GenerateRiddleOutput } from '@/ai/flows/generate-riddle';
 import { generateRiddle } from '@/ai/flows/generate-riddle';
-import { useState, useTransition, useEffect, useCallback, useRef, forwardRef, useImperativeHandle } from 'react'; // Added forwardRef, useImperativeHandle
+import { useState, useTransition, useEffect, useCallback, useRef, forwardRef, useImperativeHandle, useContext } from 'react'; // Added useContext
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils'; // Import cn
+import { RiddleContext } from '@/context/riddle-context'; // Import RiddleContext
 
 const MAX_TRIES = 3;
 
@@ -46,7 +47,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [isFetching, startTransition] = useTransition();
     const { toast } = useToast();
-    const [currentConstraints, setCurrentConstraints] = useState<string>('');
+    const { currentConstraints } = useContext(RiddleContext); // Get constraints from context
     const formRef = useRef<HTMLFormElement>(null); // Ref for the form
 
     const {
@@ -59,20 +60,19 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
       resolver: zodResolver(answerSchema),
     });
 
-    // Function to fetch a new riddle
-    const fetchNewRiddle = useCallback((newConstraints: string = currentConstraints) => {
+    // Function to fetch a new riddle, now uses constraints from context by default
+    const fetchNewRiddle = useCallback((constraintsToUse: string | null = currentConstraints) => {
       setIsCorrect(null);
       setTriesLeft(MAX_TRIES);
       reset({ answer: '' });
 
       startTransition(async () => {
         try {
-          const constraintsToSend = newConstraints || '';
-          console.log("Fetching new riddle with constraints:", constraintsToSend); // Keep log for debugging
+          const constraintsToSend = constraintsToUse ?? ''; // Use context constraints or empty string if null
+          console.log("RiddleSolver: Fetching new riddle with constraints:", constraintsToSend);
           const newRiddle = await generateRiddle({ constraints: constraintsToSend });
           setRiddleData(newRiddle);
-          // Update internal constraints state ONLY when fetching successfully with new constraints
-          setCurrentConstraints(newConstraints);
+          // No need to update local constraints state anymore
           toast({ title: 'New Riddle Loaded!', description: 'Let the guessing begin!' });
           setFocus('answer'); // Focus input field after new riddle loads
         } catch (error) {
@@ -93,31 +93,25 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           reset({ answer: '' }); // Clear input just in case
         }
       });
-    }, [reset, toast, startTransition, currentConstraints, setFocus]); // Ensure currentConstraints is a dependency if used as default
+    }, [reset, toast, startTransition, setFocus, currentConstraints]); // Add currentConstraints to dependencies
 
-    // Effect to reset state and focus when a new riddle is loaded
+    // Effect to reset state and focus when initial riddle changes (e.g. page load)
     useEffect(() => {
+      setRiddleData(initialRiddle); // Update riddle data when initialRiddle prop changes
       setTriesLeft(MAX_TRIES);
       setIsCorrect(null);
       reset({ answer: '' });
       if (formRef.current) { // Check if form exists
         setFocus('answer'); // Set focus on the input field
       }
-      // Clear constraints when initial riddle changes (e.g. page load)
-      // But don't clear if just the text changes due to a fetch triggered by constraints
-      if (initialRiddle.riddle !== riddleData.riddle && currentConstraints !== '') {
-          // This logic might need refinement depending on how initialRiddle is updated
-          // For now, let's assume initialRiddle only changes on full page reload/mount
-      }
-
-    }, [initialRiddle.riddle, reset, setFocus]); // Depend on initial riddle text
+    }, [initialRiddle, reset, setFocus]); // Depend on initialRiddle object
 
     // Expose the updateConstraintsAndFetch function using useImperativeHandle
+    // This remains useful if the parent (GamePage) needs to trigger a fetch directly
     useImperativeHandle(ref, () => ({
       updateConstraintsAndFetch: (constraints: string) => {
         console.log("RiddleSolver: Updating constraints via ref:", constraints);
-        // Don't directly set state here, let fetchNewRiddle handle it on success
-        fetchNewRiddle(constraints);
+        fetchNewRiddle(constraints); // Fetch using the provided constraints
       }
     }), [fetchNewRiddle]); // Add fetchNewRiddle to dependency array
 
@@ -176,7 +170,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
         <div className="space-y-6">
           {/* Riddle Display Card */}
           <Card className="bg-card text-card-foreground shadow-sm border-border relative overflow-hidden">
-             {/* Optional: Difficulty/Topic Badge */}
+             {/* Display constraints from context */}
             {currentConstraints && (
                <div className="absolute top-2 right-2 bg-secondary text-secondary-foreground px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 z-10">
                  <Info size={12}/> {currentConstraints}
@@ -223,11 +217,13 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                    </Tooltip>
                    <Tooltip>
                      <TooltipTrigger asChild>
-                       <Button variant="outline" size="icon" onClick={() => fetchNewRiddle(currentConstraints)} aria-label="Get New Riddle" disabled={isFetching} className="transition-transform duration-150 hover:scale-110 active:scale-100">
+                       {/* Fetch new riddle using current context constraints */}
+                       <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching} className="transition-transform duration-150 hover:scale-110 active:scale-100">
                           {isFetching ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCcw className="h-5 w-5" />}
                        </Button>
                       </TooltipTrigger>
                      <TooltipContent>
+                       {/* Update tooltip text */}
                        <p>Get New Riddle{currentConstraints ? ` (${currentConstraints})` : ''}</p>
                      </TooltipContent>
                    </Tooltip>
@@ -273,7 +269,8 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                <Smile className="h-5 w-5 text-green-600 dark:text-green-400" />
                <AlertTitle className="font-bold">Congratulations!</AlertTitle>
                <AlertDescription>You solved it! The answer was <strong>{riddleData.answer}</strong>.</AlertDescription>
-               <Button onClick={() => fetchNewRiddle(currentConstraints)} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
+                {/* Fetch new riddle using current context constraints */}
+               <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
                  {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
                  Play Again {currentConstraints ? `(${currentConstraints})` : ''}
                </Button>
@@ -287,7 +284,8 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
               <AlertDescription>
                 Out of tries! The correct answer was: <strong>{riddleData.answer}</strong>
               </AlertDescription>
-               <Button onClick={() => fetchNewRiddle(currentConstraints)} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
+                {/* Fetch new riddle using current context constraints */}
+               <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
                   {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
                  Try a New Riddle {currentConstraints ? `(${currentConstraints})` : ''}
                </Button>

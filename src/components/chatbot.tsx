@@ -2,7 +2,7 @@
 
 import type { ChatInput, ChatOutput } from '@/ai/flows/chat-with-riddle-bot';
 import { chatWithRiddleBot } from '@/ai/flows/chat-with-riddle-bot';
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { useState, useTransition, useRef, useEffect, useContext } from 'react'; // Added useContext
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, SendHorizonal, Bot, User, Sparkles } from 'lucide-react'; // Added Sparkles
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { RiddleContext } from '@/context/riddle-context'; // Import RiddleContext
 
 // Define the message structure for the chat history
 interface ChatMessage {
@@ -27,16 +28,16 @@ const chatInputSchema = z.object({
 });
 type ChatFormData = z.infer<typeof chatInputSchema>;
 
-// Define and export the type for constraint updates
-export type ConstraintUpdate = { type: 'difficulty' | 'topic'; value: string };
+// // Define and export the type for constraint updates (No longer needed for external use)
+// export type ConstraintUpdate = { type: 'difficulty' | 'topic'; value: string };
 
-interface ChatbotProps {
-  // Callback to notify parent about constraint changes
-   onConstraintChange?: (update: ConstraintUpdate) => void;
-}
+// interface ChatbotProps {
+//   // Callback to notify parent about constraint changes (No longer needed)
+//   // onConstraintChange?: (update: ConstraintUpdate) => void;
+// }
 
 
-export default function Chatbot({ onConstraintChange }: ChatbotProps) {
+export default function Chatbot(/*{ onConstraintChange }: ChatbotProps*/) { // Remove prop
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     { role: 'bot', content: "Hi there! 👋 Ask me to change the riddle's difficulty ('easy', 'medium', 'hard') or topic (e.g., 'animals', 'science')." },
   ]);
@@ -44,6 +45,7 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null); // Ref for the viewport div inside ScrollArea
+  const { setCurrentConstraints } = useContext(RiddleContext); // Get context setter
 
   const {
     register,
@@ -80,25 +82,35 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
         const botMessage: ChatMessage = { role: 'bot', content: output.response };
         setChatHistory((prev) => [...prev, botMessage]);
 
-        // Notify parent/trigger action if intent is recognized
+        // Update context if intent is recognized
         if (output.intent === 'difficulty' && output.value) {
+          const constraintString = `difficulty: ${output.value}`;
+          console.log("Chatbot: Setting context constraints:", constraintString);
+          setCurrentConstraints(constraintString); // Update context
           toast({
               title: 'Difficulty Updated',
               description: `Riddle difficulty set to: ${output.value}`,
               icon: <Sparkles className="h-5 w-5 text-primary" />,
             });
-          // Call the callback prop if provided
-           console.log("Chatbot: Sending difficulty update to parent:", output.value);
-           onConstraintChange?.({ type: 'difficulty', value: output.value });
+          // Remove old callback call
+          // console.log("Chatbot: Sending difficulty update to parent:", output.value);
+          // onConstraintChange?.({ type: 'difficulty', value: output.value });
         } else if (output.intent === 'topic' && output.value) {
+            const constraintString = `topic: ${output.value}`;
+            console.log("Chatbot: Setting context constraints:", constraintString);
+            setCurrentConstraints(constraintString); // Update context
            toast({
                title: 'Topic Updated',
                description: `Riddle topic set to: ${output.value}`,
                icon: <Sparkles className="h-5 w-5 text-primary" />,
              });
-           // Call the callback prop if provided
-            console.log("Chatbot: Sending topic update to parent:", output.value);
-           onConstraintChange?.({ type: 'topic', value: output.value });
+           // Remove old callback call
+            // console.log("Chatbot: Sending topic update to parent:", output.value);
+           // onConstraintChange?.({ type: 'topic', value: output.value });
+        } else {
+           // If intent is chit_chat or unknown, maybe clear constraints?
+           // Or leave them as they are. Current behavior: leave as is.
+           // To clear: setCurrentConstraints('');
         }
 
       } catch (error) {
@@ -115,8 +127,8 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
   };
 
   return (
-    // Removed fixed height, let content define height up to a max
-    <div className="flex flex-col max-h-[500px] border border-border rounded-lg bg-card text-card-foreground shadow-sm">
+    // Adjusted styling for dialog integration
+    <div className="flex flex-col h-[500px] max-h-[70vh] bg-card text-card-foreground"> {/* Adjusted height */}
        {/* Use ScrollArea with explicit viewport ref */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
          <div className="space-y-4" ref={viewportRef}> {/* Apply ref here */}

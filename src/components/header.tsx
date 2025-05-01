@@ -1,11 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Puzzle } from 'lucide-react';
+import { Home, Puzzle, MessageSquare } from 'lucide-react'; // Added MessageSquare
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ThemeToggleButton } from '@/components/theme-toggle-button'; // Import ThemeToggleButton
+import { ThemeToggleButton } from '@/components/theme-toggle-button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"; // Import Dialog components
+import Chatbot from '@/components/chatbot'; // Import Chatbot
 
 export default function Header() {
   const pathname = usePathname();
@@ -22,8 +31,8 @@ export default function Header() {
            <span>RiddleMeThis</span>
         </Link>
 
-        {/* Navigation Section */}
-        <nav className="flex items-center space-x-1 sm:space-x-2"> {/* Adjusted spacing */}
+        {/* Navigation Section - Increased spacing */}
+        <nav className="flex items-center space-x-2 sm:space-x-4"> {/* Increased space-x */}
           <Link href="/home" passHref>
              <Button
                 variant="ghost"
@@ -52,6 +61,29 @@ export default function Header() {
               Game
             </Button>
           </Link>
+
+           {/* Chatbot Dialog Trigger */}
+           <Dialog>
+             <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-accent/50" aria-label="Open Chatbot">
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+             </DialogTrigger>
+             <DialogContent className="sm:max-w-[425px] p-0"> {/* Remove default padding */}
+                <DialogHeader className="p-6 pb-4"> {/* Add padding back here */}
+                  <DialogTitle>Chat with RiddleBot</DialogTitle>
+                  <DialogDescription>
+                    Ask to change difficulty (easy, medium, hard) or topic (e.g., animals, science).
+                  </DialogDescription>
+                </DialogHeader>
+                {/* Chatbot component now lives inside the dialog */}
+                <div className="p-6 pt-0"> {/* Add padding for the content */}
+                    <Chatbot />
+                </div>
+                {/* Note: No explicit footer needed unless we add actions */}
+             </DialogContent>
+           </Dialog>
+
            <ThemeToggleButton /> {/* Add the theme toggle button */}
         </nav>
       </div>
