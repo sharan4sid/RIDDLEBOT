@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster'; // Import Toaster
 import Header from '@/components/header'; // Import Header component
+import { cn } from '@/lib/utils'; // Import cn for combining class names
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,13 +26,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
+      {/* Apply font variables directly to html tag */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning={true} // Add suppressHydrationWarning
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased flex flex-col', // Use cn helper, set min-h-screen, flex-col layout
+           geistSans.variable,
+           geistMono.variable
+        )}
+        // suppressHydrationWarning={true} // Removed suppressHydrationWarning
       >
         <Header /> {/* Add Header component */}
-        <main className="flex-grow">{children}</main> {/* Wrap children in main */}
+        {/* Added flex-grow to main content area */}
+        <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
         <Toaster /> {/* Add Toaster component */}
       </body>
     </html>

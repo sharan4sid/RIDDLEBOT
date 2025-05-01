@@ -2,7 +2,7 @@
 
 import type { GenerateRiddleOutput } from '@/ai/flows/generate-riddle';
 import { generateRiddle } from '@/ai/flows/generate-riddle';
-import { useState, useTransition, useEffect, useCallback } from 'react'; // Added useCallback
+import { useState, useTransition, useEffect, useCallback, useRef } from 'react'; // Added useRef
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Lightbulb, Loader2, RefreshCcw, Smile, Frown } from 'lucide-react';
+import { Lightbulb, Loader2, RefreshCcw, Smile, Frown, Info } from 'lucide-react'; // Added Info icon
 import { useToast } from '@/hooks/use-toast';
 import {
   Tooltip,
@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils'; // Import cn
 
 const MAX_TRIES = 3;
 
@@ -31,77 +32,75 @@ type AnswerFormData = z.infer<typeof answerSchema>;
 
 interface RiddleSolverProps {
   initialRiddle: GenerateRiddleOutput;
-   // Optional prop to receive constraints from parent (e.g., from chatbot)
-  // constraints?: string;
 }
 
-export default function RiddleSolver({ initialRiddle /* constraints = '' */ }: RiddleSolverProps) {
+export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
   const [riddleData, setRiddleData] = useState<GenerateRiddleOutput>(initialRiddle);
   const [triesLeft, setTriesLeft] = useState(MAX_TRIES);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isFetching, startTransition] = useTransition();
   const { toast } = useToast();
-   // State to hold current constraints for fetching new riddles
   const [currentConstraints, setCurrentConstraints] = useState<string>('');
-
+  const formRef = useRef<HTMLFormElement>(null); // Ref for the form
 
   const {
     register,
     handleSubmit,
     reset,
+    setFocus, // Added setFocus
     formState: { errors },
   } = useForm<AnswerFormData>({
     resolver: zodResolver(answerSchema),
   });
 
-  // Function to fetch a new riddle, now accepting constraints
-   const fetchNewRiddle = useCallback((newConstraints: string = currentConstraints) => {
-     setIsCorrect(null); // Reset correctness state immediately
-     setTriesLeft(MAX_TRIES); // Reset tries
-     reset({ answer: '' }); // Clear input field
+  // Function to fetch a new riddle
+  const fetchNewRiddle = useCallback((newConstraints: string = currentConstraints) => {
+    setIsCorrect(null);
+    setTriesLeft(MAX_TRIES);
+    reset({ answer: '' });
 
-     startTransition(async () => {
-       try {
-         // Use the provided or current constraints
-         const constraintsToSend = newConstraints || ''; // Ensure we send empty string if no constraints
-         console.log("Fetching new riddle with constraints:", constraintsToSend); // Debug log
-         const newRiddle = await generateRiddle({ constraints: constraintsToSend });
-         setRiddleData(newRiddle);
-         setCurrentConstraints(newConstraints); // Update current constraints state
-         toast({ title: 'New Riddle Loaded!', description: 'Good luck!' });
-       } catch (error) {
-         console.error("Failed to fetch new riddle:", error);
-         toast({
-           title: "Error",
-           description: "Could not load a new riddle. Please try again.",
-           variant: "destructive",
-         });
-         // Optionally reset to initial riddle or show an error state
-         // For now, we keep the old riddle but reset tries/correctness
-         setTriesLeft(MAX_TRIES);
-         setIsCorrect(null);
-       }
-     });
-   }, [reset, toast, startTransition, currentConstraints]); // Added dependencies
+    startTransition(async () => {
+      try {
+        const constraintsToSend = newConstraints || '';
+        console.log("Fetching new riddle with constraints:", constraintsToSend);
+        const newRiddle = await generateRiddle({ constraints: constraintsToSend });
+        setRiddleData(newRiddle);
+        setCurrentConstraints(newConstraints); // Update constraints if new ones were passed
+        toast({ title: 'New Riddle Loaded!', description: 'Let the guessing begin!' });
+        setFocus('answer'); // Focus input field after new riddle loads
+      } catch (error) {
+        console.error("Failed to fetch new riddle:", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        let userFriendlyError = "Could not load a new riddle. Please try again.";
+        if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+           userFriendlyError = 'Riddle generator is busy! Please try again in a moment.';
+        }
+        toast({
+          title: "Error",
+          description: userFriendlyError,
+          variant: "destructive",
+        });
+        // Keep the old riddle, reset state
+        setTriesLeft(MAX_TRIES);
+        setIsCorrect(null);
+        reset({ answer: '' }); // Clear input just in case
+      }
+    });
+  }, [reset, toast, startTransition, currentConstraints, setFocus]); // Added setFocus dependency
 
-
-   // Effect to potentially react to external constraint changes (if prop was used)
-   // useEffect(() => {
-   //   if (constraints && constraints !== currentConstraints) {
-   //     fetchNewRiddle(constraints);
-   //   }
-   // }, [constraints, currentConstraints, fetchNewRiddle]);
-
-
+  // Effect to reset state and focus when a new riddle is loaded
   useEffect(() => {
-    // Reset state when a new riddle is loaded (except the initial one)
-    // This effect now primarily handles resets *after* a new riddle is fetched
     setTriesLeft(MAX_TRIES);
     setIsCorrect(null);
-    reset({ answer: '' }); // Clear the input field
-  }, [riddleData.riddle, reset]); // Depend on riddle text to detect new riddle
+    reset({ answer: '' });
+    if (formRef.current) { // Check if form exists
+      setFocus('answer'); // Set focus on the input field
+    }
+  }, [riddleData.riddle, reset, setFocus]); // Depend on riddle text, reset, and setFocus
 
   const handleGuess: SubmitHandler<AnswerFormData> = (data) => {
+    if (isCorrect) return; // Don't allow guessing if already correct
+
     const guess = data.answer.trim().toLowerCase();
     const correctAnswer = riddleData.answer.trim().toLowerCase();
 
@@ -109,13 +108,13 @@ export default function RiddleSolver({ initialRiddle /* constraints = '' */ }: R
       setIsCorrect(true);
       toast({
         title: "Correct!",
-        description: "You solved the riddle!",
-        variant: 'default', // Use default variant for success
+        description: `"${riddleData.answer}" is the right answer!`,
+        className: 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-200', // Success toast styling
       });
     } else {
       const newTries = triesLeft - 1;
       setTriesLeft(newTries);
-      setIsCorrect(false);
+      setIsCorrect(false); // Indicate incorrect guess visually
 
       if (newTries === 0) {
         toast({
@@ -124,123 +123,165 @@ export default function RiddleSolver({ initialRiddle /* constraints = '' */ }: R
           variant: 'destructive',
         });
       } else {
-         toast({
+        toast({
           title: "Incorrect",
-          description: `Try again! ${newTries} ${newTries === 1 ? 'try' : 'tries'} left.`,
-          variant: 'destructive',
+          description: `Not quite! ${newTries} ${newTries === 1 ? 'try' : 'tries'} left.`,
+          variant: 'destructive', // Use destructive variant for incorrect
         });
+         reset({ answer: '' }); // Clear input on incorrect guess
+         setFocus('answer');    // Refocus input on incorrect guess
       }
     }
   };
 
-
   const showHint = () => {
      toast({
-        title: "Hint",
+        title: "Here's a Hint:",
         description: riddleData.hint,
-      });
+        icon: <Lightbulb className="h-5 w-5 text-yellow-500" />, // Use custom icon
+        duration: 7000, // Slightly longer duration for hints
+     });
   }
 
   const progressValue = (triesLeft / MAX_TRIES) * 100;
+  const progressColor = triesLeft > 1 ? 'bg-primary' : 'bg-destructive'; // Change progress bar color on last try
 
-  // Public method to be called by the chatbot (or parent) to trigger riddle fetching
-  // This requires exposing the component instance or using a state management solution / context
-  // For simplicity here, we assume the chatbot lives alongside and can call fetchNewRiddle directly
-  // If Chatbot was a child, could pass fetchNewRiddle down. If sibling, need state lifting or context.
-  // Example: Expose via ref (less ideal) or use a shared context/state manager.
+
+  // Callback for chatbot to update constraints and fetch new riddle
+  // In a real app, this might use context or state management.
+  // For now, we'll expose it via a hypothetical parent component or direct call if structure allows.
+  const updateConstraintsAndFetch = useCallback((constraints: string) => {
+      setCurrentConstraints(constraints); // Update internal state
+      fetchNewRiddle(constraints);       // Fetch with new constraints
+  }, [fetchNewRiddle]);
+
+  // Example of how Chatbot could potentially call this (conceptual)
+  // useEffect(() => {
+  //   // Subscribe to constraint changes from Chatbot (e.g., via event emitter or context)
+  //   const unsubscribe = subscribeToConstraintChanges(updateConstraintsAndFetch);
+  //   return () => unsubscribe();
+  // }, [updateConstraintsAndFetch]);
+
 
   return (
     <TooltipProvider>
-      <div className="space-y-6 text-center">
-        <Card className="bg-card text-card-foreground shadow-inner">
-          <CardHeader>
-             <CardTitle className="text-xl font-semibold">Solve This Riddle:</CardTitle>
-             {currentConstraints && (
-                <CardDescription className="text-sm text-muted-foreground pt-1">
-                  Current filters: {currentConstraints}
-                </CardDescription>
-             )}
+      <div className="space-y-6">
+        {/* Riddle Display Card */}
+        <Card className="bg-card text-card-foreground shadow-sm border-border relative overflow-hidden">
+           {/* Optional: Difficulty/Topic Badge */}
+          {currentConstraints && (
+             <div className="absolute top-2 right-2 bg-secondary text-secondary-foreground px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+               <Info size={12}/> {currentConstraints}
+             </div>
+           )}
+          <CardHeader className="pb-2 pt-4 px-4 sm:px-6">
+             {/* <CardTitle className="text-lg font-semibold text-primary">Solve This:</CardTitle> */}
           </CardHeader>
-          <CardContent>
-            <p className="text-lg whitespace-pre-wrap mb-4">{riddleData.riddle}</p>
-             <div className="flex items-center justify-center space-x-2 mb-4">
-                <Label htmlFor="tries" className="text-sm font-medium text-muted-foreground">Tries Left:</Label>
-                <Progress id="tries" value={progressValue} className="w-1/2 h-2" aria-label={`${triesLeft} out of ${MAX_TRIES} tries remaining`} />
-                <span className="text-sm font-medium text-muted-foreground">{triesLeft}/{MAX_TRIES}</span>
-            </div>
+          <CardContent className="px-4 sm:px-6 pb-4">
+            {isFetching ? (
+               <div className="flex items-center justify-center h-20">
+                 <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                 <p className="ml-3 text-muted-foreground">Loading new riddle...</p>
+               </div>
+            ) : (
+              <p className="text-lg md:text-xl text-center font-medium text-foreground whitespace-pre-wrap min-h-[60px]">
+                {riddleData.riddle}
+              </p>
+            )}
           </CardContent>
-           <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-4">
-             <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0}>
-                    <Lightbulb className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Show Hint</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                   {/* Call fetchNewRiddle without args to use current constraints */}
-                  <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching}>
-                     {isFetching ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCcw className="h-5 w-5" />}
-                  </Button>
-                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Get New Riddle{currentConstraints ? ` (Filters: ${currentConstraints})` : ''}</p>
-                </TooltipContent>
-              </Tooltip>
+          <CardFooter className="flex flex-col items-center justify-center gap-4 bg-muted/50 py-3 px-4 sm:px-6 border-t">
+             {/* Tries Progress */}
+             <div className="flex items-center justify-center space-x-2 w-full max-w-xs">
+                <Label htmlFor="tries" className="text-xs font-medium text-muted-foreground whitespace-nowrap">Tries Left:</Label>
+                 <Progress
+                    id="tries"
+                    value={progressValue}
+                    className="w-full h-2 bg-secondary"
+                    indicatorClassName={cn('transition-all', progressColor)} // Apply dynamic color
+                    aria-label={`${triesLeft} out of ${MAX_TRIES} tries remaining`} />
+                <span className="text-xs font-medium text-muted-foreground w-8 text-right">{triesLeft}/{MAX_TRIES}</span>
+             </div>
+             {/* Action Buttons */}
+             <div className="flex gap-3">
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0}>
+                       <Lightbulb className="h-5 w-5" />
+                     </Button>
+                   </TooltipTrigger>
+                   <TooltipContent>
+                     <p>Show Hint</p>
+                   </TooltipContent>
+                 </Tooltip>
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching}>
+                        {isFetching ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCcw className="h-5 w-5" />}
+                     </Button>
+                    </TooltipTrigger>
+                   <TooltipContent>
+                     <p>Get New Riddle{currentConstraints ? ` (${currentConstraints})` : ''}</p>
+                   </TooltipContent>
+                 </Tooltip>
+            </div>
           </CardFooter>
         </Card>
 
-
-        {triesLeft > 0 && isCorrect !== true && (
-          <form onSubmit={handleSubmit(handleGuess)} className="space-y-4">
-            <div className="flex flex-col items-center space-y-2">
+        {/* Input Form Area */}
+        {triesLeft > 0 && isCorrect !== true && !isFetching && (
+          <form ref={formRef} onSubmit={handleSubmit(handleGuess)} className="space-y-3 transition-opacity duration-300 ease-in-out">
+             <div className="relative">
               <Label htmlFor="answer" className="sr-only">Your Answer</Label>
               <Input
                 id="answer"
                 type="text"
                 placeholder="Enter your guess..."
-                className="max-w-xs text-center"
+                className={cn(
+                    "w-full text-center text-base transition-colors duration-200",
+                    errors.answer ? "border-destructive focus-visible:ring-destructive" : "",
+                    isCorrect === false && triesLeft < MAX_TRIES ? "border-destructive/50" : "" // Subtle border hint on incorrect
+                )}
                 aria-invalid={errors.answer ? "true" : "false"}
                 aria-describedby="answer-error"
                 disabled={isFetching}
+                autoComplete="off" // Prevent browser autocomplete
                 {...register('answer')}
               />
-              {errors.answer && <p id="answer-error" className="text-sm text-destructive">{errors.answer.message}</p>}
-            </div>
-            <Button type="submit" disabled={isFetching} className="w-full max-w-xs">
+               {/* Visual indicator for incorrect (optional) */}
+               {/* {isCorrect === false && triesLeft < MAX_TRIES && (
+                 <Frown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive/70" />
+               )} */}
+             </div>
+              {errors.answer && <p id="answer-error" className="text-sm text-destructive text-center">{errors.answer.message}</p>}
+             <Button type="submit" disabled={isFetching} className="w-full">
               {isFetching ? <Loader2 className="animate-spin" /> : 'Submit Guess'}
             </Button>
           </form>
         )}
 
-        {isCorrect === true && (
-          <Alert className="bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-200">
+        {/* Feedback Alerts */}
+        {isCorrect === true && !isFetching && (
+          <Alert className="bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-200 animate-in fade-in duration-300">
              <Smile className="h-5 w-5 text-green-600 dark:text-green-400" />
              <AlertTitle className="font-bold">Congratulations!</AlertTitle>
-            <AlertDescription>You guessed it right!</AlertDescription>
-              {/* Call fetchNewRiddle without args to use current constraints */}
-             <Button onClick={() => fetchNewRiddle()} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
-               {isFetching ? <Loader2 className="animate-spin mr-2" /> : null}
-               Play Again {currentConstraints ? `(Filters: ${currentConstraints})` : ''}
+             <AlertDescription>You solved it! The answer was <strong>{riddleData.answer}</strong>.</AlertDescription>
+             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto" variant="secondary" size="sm" disabled={isFetching}>
+               {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
+               Play Again {currentConstraints ? `(${currentConstraints})` : ''}
              </Button>
           </Alert>
         )}
 
-        {triesLeft === 0 && isCorrect === false && (
-          <Alert variant="destructive">
+        {triesLeft === 0 && isCorrect === false && !isFetching && (
+          <Alert variant="destructive" className="bg-destructive/10 border-destructive/30 animate-in fade-in duration-300">
             <Frown className="h-5 w-5" />
              <AlertTitle className="font-bold">Game Over!</AlertTitle>
             <AlertDescription>
-              You've run out of tries. The correct answer was: <strong>{riddleData.answer}</strong>
+              Out of tries! The correct answer was: <strong>{riddleData.answer}</strong>
             </AlertDescription>
-             {/* Call fetchNewRiddle without args to use current constraints */}
-             <Button onClick={() => fetchNewRiddle()} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
-                {isFetching ? <Loader2 className="animate-spin mr-2" /> : null}
-               Try a New Riddle {currentConstraints ? `(Filters: ${currentConstraints})` : ''}
+             <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto" variant="secondary" size="sm" disabled={isFetching}>
+                {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
+               Try a New Riddle {currentConstraints ? `(${currentConstraints})` : ''}
              </Button>
           </Alert>
         )}
