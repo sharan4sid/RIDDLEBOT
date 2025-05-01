@@ -27,11 +27,11 @@ const chatInputSchema = z.object({
 });
 type ChatFormData = z.infer<typeof chatInputSchema>;
 
-// Define a simple type for constraints to pass upwards (example)
-type ConstraintUpdate = { type: 'difficulty' | 'topic', value: string };
+// Define and export the type for constraint updates
+export type ConstraintUpdate = { type: 'difficulty' | 'topic'; value: string };
 
 interface ChatbotProps {
-  // Optional callback to notify parent about constraint changes
+  // Callback to notify parent about constraint changes
    onConstraintChange?: (update: ConstraintUpdate) => void;
 }
 
@@ -88,6 +88,7 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
               icon: <Sparkles className="h-5 w-5 text-primary" />,
             });
           // Call the callback prop if provided
+           console.log("Chatbot: Sending difficulty update to parent:", output.value);
            onConstraintChange?.({ type: 'difficulty', value: output.value });
         } else if (output.intent === 'topic' && output.value) {
            toast({
@@ -96,6 +97,7 @@ export default function Chatbot({ onConstraintChange }: ChatbotProps) {
                icon: <Sparkles className="h-5 w-5 text-primary" />,
              });
            // Call the callback prop if provided
+            console.log("Chatbot: Sending topic update to parent:", output.value);
            onConstraintChange?.({ type: 'topic', value: output.value });
         }
 
