@@ -11,8 +11,12 @@ export default async function Home() {
   try {
     initialRiddleData = await generateRiddle({ constraints: '' });
   } catch (e) {
-    console.error('Error fetching initial riddle:', e);
-    error = 'Failed to load the first riddle. Please try refreshing the page.';
+    // Log the full error object, including potential message and stack
+    console.error('Error fetching initial riddle:', e instanceof Error ? e.message : e);
+    if (e instanceof Error && e.stack) {
+      console.error('Stack trace:', e.stack);
+    }
+    error = 'Failed to load the first riddle. Please try refreshing the page. Check server logs for more details.';
   }
 
   return (
