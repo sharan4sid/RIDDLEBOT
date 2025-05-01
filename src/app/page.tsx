@@ -58,7 +58,7 @@ export default function GamePage() {
      // Only run when currentConstraints changes (and component is not initially loading)
      // We check isLoading to prevent fetching based on context immediately on mount
      // before the initial riddle has even loaded.
-  }, [currentConstraints]); // Rerun when context constraints change
+  }, [currentConstraints, isLoading]); // Rerun when context constraints change or loading state finishes
 
 
   return (
