@@ -19,11 +19,14 @@ export default async function Home() {
     // Generate initial riddle with no specific constraints
     initialRiddleData = await generateRiddle({ constraints: '' });
   } catch (e) {
-    console.error('Error fetching initial riddle:', e instanceof Error ? e.message : e);
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error('Error fetching initial riddle:', errorMessage);
     if (e instanceof Error && e.stack) {
       console.error('Stack trace:', e.stack);
     }
-    error = 'Failed to load the first riddle. Please try refreshing the page. Check server logs for more details.';
+    // Provide a more specific user-facing error message
+    error = `Failed to load the first riddle. ${errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded') ? 'The riddle service might be temporarily overloaded.' : ''} Please try refreshing the page.`;
+
   }
 
   return (
@@ -40,10 +43,20 @@ export default async function Home() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : (
-            initialRiddleData && <RiddleSolver initialRiddle={initialRiddleData} />
+             // Ensure initialRiddleData is not null before rendering RiddleSolver
+            initialRiddleData ? (
+               <RiddleSolver initialRiddle={initialRiddleData} />
+             ) : (
+               // Handle the case where initialRiddleData is null but there was no error (shouldn't happen with current logic, but safe)
+               <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>Could not load initial riddle data.</AlertDescription>
+               </Alert>
+             )
           )}
 
-          {/* Add Chatbot Section */}
+          {/* Add Chatbot Section - Render even if initial riddle fails */}
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="chatbot">
               <AccordionTrigger className="text-lg font-medium hover:no-underline">
