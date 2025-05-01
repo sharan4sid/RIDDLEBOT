@@ -21,9 +21,10 @@ export default async function Home() {
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('Error fetching initial riddle:', errorMessage); // Log the actual error message
-    if (e instanceof Error && e.stack) {
-      console.error('Stack trace:', e.stack); // Log stack trace if available
-    }
+    // Removed stack trace logging as it can be noisy for handled errors like API overload
+    // if (e instanceof Error && e.stack) {
+    //   console.error('Stack trace:', e.stack);
+    // }
     // Provide a more specific user-facing error message for overload issues
     if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
        error = 'Failed to load the first riddle. The riddle service might be temporarily overloaded. Please try refreshing the page.';
