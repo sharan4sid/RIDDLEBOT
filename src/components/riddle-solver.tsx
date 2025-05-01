@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
 import type { GenerateRiddleOutput } from '@/ai/flows/generate-riddle';
 import { generateRiddle } from '@/ai/flows/generate-riddle';
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react'; // Added useCallback
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,14 +31,19 @@ type AnswerFormData = z.infer<typeof answerSchema>;
 
 interface RiddleSolverProps {
   initialRiddle: GenerateRiddleOutput;
+   // Optional prop to receive constraints from parent (e.g., from chatbot)
+  // constraints?: string;
 }
 
-export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
+export default function RiddleSolver({ initialRiddle /* constraints = '' */ }: RiddleSolverProps) {
   const [riddleData, setRiddleData] = useState<GenerateRiddleOutput>(initialRiddle);
   const [triesLeft, setTriesLeft] = useState(MAX_TRIES);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isFetching, startTransition] = useTransition();
   const { toast } = useToast();
+   // State to hold current constraints for fetching new riddles
+  const [currentConstraints, setCurrentConstraints] = useState<string>('');
+
 
   const {
     register,
@@ -49,8 +54,48 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
     resolver: zodResolver(answerSchema),
   });
 
+  // Function to fetch a new riddle, now accepting constraints
+   const fetchNewRiddle = useCallback((newConstraints: string = currentConstraints) => {
+     setIsCorrect(null); // Reset correctness state immediately
+     setTriesLeft(MAX_TRIES); // Reset tries
+     reset({ answer: '' }); // Clear input field
+
+     startTransition(async () => {
+       try {
+         // Use the provided or current constraints
+         const constraintsToSend = newConstraints || ''; // Ensure we send empty string if no constraints
+         console.log("Fetching new riddle with constraints:", constraintsToSend); // Debug log
+         const newRiddle = await generateRiddle({ constraints: constraintsToSend });
+         setRiddleData(newRiddle);
+         setCurrentConstraints(newConstraints); // Update current constraints state
+         toast({ title: 'New Riddle Loaded!', description: 'Good luck!' });
+       } catch (error) {
+         console.error("Failed to fetch new riddle:", error);
+         toast({
+           title: "Error",
+           description: "Could not load a new riddle. Please try again.",
+           variant: "destructive",
+         });
+         // Optionally reset to initial riddle or show an error state
+         // For now, we keep the old riddle but reset tries/correctness
+         setTriesLeft(MAX_TRIES);
+         setIsCorrect(null);
+       }
+     });
+   }, [reset, toast, startTransition, currentConstraints]); // Added dependencies
+
+
+   // Effect to potentially react to external constraint changes (if prop was used)
+   // useEffect(() => {
+   //   if (constraints && constraints !== currentConstraints) {
+   //     fetchNewRiddle(constraints);
+   //   }
+   // }, [constraints, currentConstraints, fetchNewRiddle]);
+
+
   useEffect(() => {
     // Reset state when a new riddle is loaded (except the initial one)
+    // This effect now primarily handles resets *after* a new riddle is fetched
     setTriesLeft(MAX_TRIES);
     setIsCorrect(null);
     reset({ answer: '' }); // Clear the input field
@@ -88,25 +133,6 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
     }
   };
 
-  const fetchNewRiddle = () => {
-     setIsCorrect(null); // Reset correctness state immediately
-     startTransition(async () => {
-      try {
-        const newRiddle = await generateRiddle({ constraints: '' }); // Add constraint input later if needed
-        setRiddleData(newRiddle);
-      } catch (error) {
-        console.error("Failed to fetch new riddle:", error);
-        toast({
-          title: "Error",
-          description: "Could not load a new riddle. Please try again.",
-          variant: "destructive",
-        });
-         // Optionally reset to initial riddle or show an error state
-        // For now, we keep the old riddle
-      }
-    });
-  };
-
 
   const showHint = () => {
      toast({
@@ -117,12 +143,23 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
 
   const progressValue = (triesLeft / MAX_TRIES) * 100;
 
+  // Public method to be called by the chatbot (or parent) to trigger riddle fetching
+  // This requires exposing the component instance or using a state management solution / context
+  // For simplicity here, we assume the chatbot lives alongside and can call fetchNewRiddle directly
+  // If Chatbot was a child, could pass fetchNewRiddle down. If sibling, need state lifting or context.
+  // Example: Expose via ref (less ideal) or use a shared context/state manager.
+
   return (
     <TooltipProvider>
       <div className="space-y-6 text-center">
         <Card className="bg-card text-card-foreground shadow-inner">
           <CardHeader>
              <CardTitle className="text-xl font-semibold">Solve This Riddle:</CardTitle>
+             {currentConstraints && (
+                <CardDescription className="text-sm text-muted-foreground pt-1">
+                  Current filters: {currentConstraints}
+                </CardDescription>
+             )}
           </CardHeader>
           <CardContent>
             <p className="text-lg whitespace-pre-wrap mb-4">{riddleData.riddle}</p>
@@ -145,12 +182,13 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={fetchNewRiddle} aria-label="Get New Riddle" disabled={isFetching}>
+                   {/* Call fetchNewRiddle without args to use current constraints */}
+                  <Button variant="outline" size="icon" onClick={() => fetchNewRiddle()} aria-label="Get New Riddle" disabled={isFetching}>
                      {isFetching ? <Loader2 className="h-5 w-5 animate-spin" /> : <RefreshCcw className="h-5 w-5" />}
                   </Button>
                  </TooltipTrigger>
                 <TooltipContent>
-                  <p>Get New Riddle</p>
+                  <p>Get New Riddle{currentConstraints ? ` (Filters: ${currentConstraints})` : ''}</p>
                 </TooltipContent>
               </Tooltip>
           </CardFooter>
@@ -184,9 +222,10 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
              <Smile className="h-5 w-5 text-green-600 dark:text-green-400" />
              <AlertTitle className="font-bold">Congratulations!</AlertTitle>
             <AlertDescription>You guessed it right!</AlertDescription>
-             <Button onClick={fetchNewRiddle} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
+              {/* Call fetchNewRiddle without args to use current constraints */}
+             <Button onClick={() => fetchNewRiddle()} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
                {isFetching ? <Loader2 className="animate-spin mr-2" /> : null}
-               Play Again
+               Play Again {currentConstraints ? `(Filters: ${currentConstraints})` : ''}
              </Button>
           </Alert>
         )}
@@ -198,9 +237,10 @@ export default function RiddleSolver({ initialRiddle }: RiddleSolverProps) {
             <AlertDescription>
               You've run out of tries. The correct answer was: <strong>{riddleData.answer}</strong>
             </AlertDescription>
-             <Button onClick={fetchNewRiddle} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
+             {/* Call fetchNewRiddle without args to use current constraints */}
+             <Button onClick={() => fetchNewRiddle()} className="mt-4" variant="secondary" size="sm" disabled={isFetching}>
                 {isFetching ? <Loader2 className="animate-spin mr-2" /> : null}
-               Try a New Riddle
+               Try a New Riddle {currentConstraints ? `(Filters: ${currentConstraints})` : ''}
              </Button>
           </Alert>
         )}

@@ -1,17 +1,24 @@
 import { generateRiddle } from '@/ai/flows/generate-riddle';
 import RiddleSolver from '@/components/riddle-solver';
+import Chatbot from '@/components/chatbot'; // Import the Chatbot component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, MessageSquare } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'; // Import Accordion components
 
 export default async function Home() {
   let initialRiddleData = null;
   let error = null;
 
   try {
+    // Generate initial riddle with no specific constraints
     initialRiddleData = await generateRiddle({ constraints: '' });
   } catch (e) {
-    // Log the full error object, including potential message and stack
     console.error('Error fetching initial riddle:', e instanceof Error ? e.message : e);
     if (e instanceof Error && e.stack) {
       console.error('Stack trace:', e.stack);
@@ -33,8 +40,23 @@ export default async function Home() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : (
-             initialRiddleData && <RiddleSolver initialRiddle={initialRiddleData} />
+            initialRiddleData && <RiddleSolver initialRiddle={initialRiddleData} />
           )}
+
+          {/* Add Chatbot Section */}
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="chatbot">
+              <AccordionTrigger className="text-lg font-medium hover:no-underline">
+                <div className="flex items-center gap-2">
+                   <MessageSquare className="h-5 w-5" />
+                   <span>Need Help or Want to Customize? Chat with our Bot!</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                 <Chatbot />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
     </main>
