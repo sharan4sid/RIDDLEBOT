@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning> {/* Added suppressHydrationWarning */}
-      {/* Apply font variables directly to html tag */}
+      {/* Apply font variables to body tag instead */}
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased flex flex-col', // Use cn helper, set min-h-screen, flex-col layout
