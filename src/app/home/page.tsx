@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Brain, History, Lightbulb, Puzzle } from 'lucide-react';
+import { Brain, History, Lightbulb, Puzzle, Home } from 'lucide-react'; // Import Home icon
 
 export default function HomePage() {
   return (
