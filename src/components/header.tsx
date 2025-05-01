@@ -5,6 +5,7 @@ import { Home, Puzzle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ThemeToggleButton } from '@/components/theme-toggle-button'; // Import ThemeToggleButton
 
 export default function Header() {
   const pathname = usePathname();
@@ -12,8 +13,9 @@ export default function Header() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container flex h-16 items-center justify-between max-w-6xl mx-auto px-4"> {/* Increased height, max-width, added padding */}
+    // Updated background to use primary color with opacity and blur
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-primary/5 backdrop-blur supports-[backdrop-filter]:bg-primary/10 shadow-sm">
+      <div className="container flex h-16 items-center justify-between max-w-6xl mx-auto px-4">
         {/* Logo/Title Section - Updated Link href */}
         <Link href="/home" className="flex items-center gap-2 text-lg font-semibold text-foreground hover:text-primary transition-colors">
            <Puzzle className="h-6 w-6 text-primary" />
@@ -21,7 +23,7 @@ export default function Header() {
         </Link>
 
         {/* Navigation Section */}
-        <nav className="flex items-center space-x-2 sm:space-x-4"> {/* Reduced spacing slightly */}
+        <nav className="flex items-center space-x-1 sm:space-x-2"> {/* Adjusted spacing */}
           <Link href="/home" passHref>
              <Button
                 variant="ghost"
@@ -50,6 +52,7 @@ export default function Header() {
               Game
             </Button>
           </Link>
+           <ThemeToggleButton /> {/* Add the theme toggle button */}
         </nav>
       </div>
     </header>

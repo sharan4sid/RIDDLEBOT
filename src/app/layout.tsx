@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster'; // Import Toaster
 import Header from '@/components/header'; // Import Header component
 import { cn } from '@/lib/utils'; // Import cn for combining class names
+import { ThemeProvider } from '@/components/theme-provider'; // Import ThemeProvider
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning> {/* Added suppressHydrationWarning */}
       {/* Apply font variables directly to html tag */}
       <body
         className={cn(
@@ -36,10 +37,17 @@ export default function RootLayout({
         )}
         suppressHydrationWarning={true} // Add suppressHydrationWarning to body tag
       >
-        <Header /> {/* Add Header component */}
-        {/* Added flex-grow to main content area */}
-        <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-        <Toaster /> {/* Add Toaster component */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header /> {/* Add Header component */}
+          {/* Added flex-grow to main content area */}
+          <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+          <Toaster /> {/* Add Toaster component */}
+        </ThemeProvider>
       </body>
     </html>
   );
