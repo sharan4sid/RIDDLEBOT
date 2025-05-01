@@ -20,16 +20,18 @@ export default async function Home() {
     initialRiddleData = await generateRiddle({ constraints: '' });
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : String(e);
-    console.error('Error fetching initial riddle:', errorMessage); // Log the actual error message
-    // Removed stack trace logging as it can be noisy for handled errors like API overload
-    // if (e instanceof Error && e.stack) {
-    //   console.error('Stack trace:', e.stack);
-    // }
-    // Provide a more specific user-facing error message for overload issues
+    // Check specifically for overload/503 errors
     if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+       console.warn('Initial riddle fetch failed due to model overload.'); // Use warn for expected operational issues
        error = 'Failed to load the first riddle. The riddle service might be temporarily overloaded. Please try refreshing the page.';
     } else {
-       error = 'Failed to load the first riddle. Please try refreshing the page. Check server logs for more details.';
+       // Log unexpected errors more verbosely
+       console.error('Error fetching initial riddle:', errorMessage);
+       // Removed stack trace logging as it can be noisy for handled errors
+       // if (e instanceof Error && e.stack) {
+       //   console.error('Stack trace:', e.stack);
+       // }
+       error = 'Failed to load the first riddle. An unexpected error occurred. Please try refreshing the page.';
     }
   }
 
@@ -51,11 +53,11 @@ export default async function Home() {
             initialRiddleData ? (
                <RiddleSolver initialRiddle={initialRiddleData} />
              ) : (
-               // Handle the case where initialRiddleData is null but there was no error (shouldn't happen with current logic, but safe)
+               // This case handles if initialRiddleData is null even without a caught error (should be rare)
                <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>Could not load initial riddle data.</AlertDescription>
+                  <AlertDescription>Could not load initial riddle data. Please refresh.</AlertDescription>
                </Alert>
              )
           )}
