@@ -67,18 +67,44 @@ const generateRiddleFlow = ai.defineFlow<
     outputSchema: GenerateRiddleOutputSchema,
   },
   async input => {
-    const {output} = await generateRiddlePrompt(input);
-     // Add basic validation or default values if output is null
-    if (!output) {
-      console.error("Riddle generation failed, received null output.");
-      // Provide a fallback riddle or re-throw error
-      return {
-        riddle: "I have cities, but no houses; forests, but no trees; and water, but no fish. What am I?",
-        answer: "A map",
-        hint: "I show you places but can't take you there."
-      };
+    try {
+        const {output} = await generateRiddlePrompt(input);
+         // Add basic validation or default values if output is null
+        if (!output) {
+          console.error("Riddle generation failed, received null output.");
+          // Provide a fallback riddle or re-throw error
+          return {
+            riddle: "I have cities, but no houses; forests, but no trees; and water, but no fish. What am I?",
+            answer: "A map",
+            hint: "I show you places but can't take you there."
+          };
+        }
+        return output;
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Error in generateRiddleFlow:', errorMessage);
+
+        let userFriendlyRiddle = "Oops! Our riddle generator seems to be taking a nap. Maybe try fetching a new one?";
+        let userFriendlyAnswer = "Error";
+        let userFriendlyHint = "Something went wrong. Try again!";
+
+        // Check specifically for overload/503 errors
+        if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+            console.warn('Riddle generation failed due to model overload.');
+             userFriendlyRiddle = "The Riddle Master is very popular right now! 😅 Please try asking for a new riddle in a moment.";
+             userFriendlyAnswer = "Overload";
+             userFriendlyHint = "The server is busy.";
+        } else {
+            console.error('Unexpected error during riddle generation:', errorMessage);
+        }
+
+        // Return a valid GenerateRiddleOutput object indicating an error occurred
+        return {
+            riddle: userFriendlyRiddle,
+            answer: userFriendlyAnswer,
+            hint: userFriendlyHint,
+        };
     }
-    return output;
   }
 );
 
