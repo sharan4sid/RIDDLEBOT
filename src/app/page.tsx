@@ -51,13 +51,15 @@ export default function GamePage() {
 
   // Effect to fetch new riddle when constraints change in context
   useEffect(() => {
+    // Check if the ref is set, constraints are not null, and we are not currently loading the initial riddle
     if (riddleSolverRef.current && currentConstraints !== null && !isLoading) {
       console.log("GamePage: Context constraints changed, fetching new riddle:", currentConstraints);
+      // Call the exposed function on the RiddleSolver component
       riddleSolverRef.current.updateConstraintsAndFetch(currentConstraints);
     }
-     // Only run when currentConstraints changes (and component is not initially loading)
-     // We check isLoading to prevent fetching based on context immediately on mount
-     // before the initial riddle has even loaded.
+    // Only run when currentConstraints changes (and component is not initially loading)
+    // We check isLoading to prevent fetching based on context immediately on mount
+    // before the initial riddle has even loaded.
   }, [currentConstraints, isLoading]); // Rerun when context constraints change or loading state finishes
 
 

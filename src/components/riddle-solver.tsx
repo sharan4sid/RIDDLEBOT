@@ -79,8 +79,14 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           console.error("Failed to fetch new riddle:", error);
           const errorMessage = error instanceof Error ? error.message : String(error);
           let userFriendlyError = "Could not load a new riddle. Please try again.";
+          // Check specifically for overload/503 errors
           if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
-             userFriendlyError = 'Riddle generator is busy! Please try again in a moment.';
+             console.warn('New riddle fetch failed due to model overload.');
+             userFriendlyError = 'Oops! Our riddle generator is very popular right now and seems to be overloaded. Please try getting a new riddle again in a moment.';
+          } else {
+            // Log unexpected errors less verbosely in UI, more in console
+            console.error('Unexpected error fetching new riddle:', errorMessage);
+            userFriendlyError = 'Could not load a new riddle due to an unexpected error. Please try again.';
           }
           toast({
             title: "Error",
