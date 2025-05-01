@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning> {/* Added suppressHydrationWarning */}
+    <html lang="en" className="h-full" suppressHydrationWarning>
       {/* Apply font variables to body tag instead */}
       <body
         className={cn(
@@ -35,7 +35,6 @@ export default function RootLayout({
            geistSans.variable,
            geistMono.variable
         )}
-        suppressHydrationWarning={true} // Add suppressHydrationWarning to body tag
       >
         <ThemeProvider
           attribute="class"
