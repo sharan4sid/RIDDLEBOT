@@ -2,7 +2,7 @@ import { generateRiddle } from '@/ai/flows/generate-riddle';
 import RiddleSolver from '@/components/riddle-solver';
 import Chatbot from '@/components/chatbot'; // Import the Chatbot component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, MessageSquare } from 'lucide-react';
+import { AlertCircle, MessageSquare, Puzzle } from 'lucide-react'; // Added Puzzle icon
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Accordion,
@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'; // Import Accordion components
 
-export default async function Home() {
+export default async function GamePage() { // Renamed component for clarity
   let initialRiddleData = null;
   let error = null;
 
@@ -26,20 +26,20 @@ export default async function Home() {
        error = 'Failed to load the first riddle. The riddle service might be temporarily overloaded. Please try refreshing the page.';
     } else {
        // Log unexpected errors more verbosely
-       console.error('Error fetching initial riddle:', errorMessage);
-       // Removed stack trace logging as it can be noisy for handled errors
-       // if (e instanceof Error && e.stack) {
-       //   console.error('Stack trace:', e.stack);
-       // }
+       // console.error('Error fetching initial riddle:', errorMessage); // Reduced console noise for handled errors
        error = 'Failed to load the first riddle. An unexpected error occurred. Please try refreshing the page.';
     }
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-secondary">
+    // Removed min-h-screen and justify-center to allow content flow below header
+    <div className="flex flex-col items-center p-4 md:p-8 bg-secondary flex-grow">
       <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader className="text-center bg-primary rounded-t-lg">
-          <CardTitle className="text-2xl font-bold text-primary-foreground">RiddleMeThis</CardTitle>
+          {/* Updated Card Title */}
+          <CardTitle className="text-2xl font-bold text-primary-foreground flex items-center justify-center gap-2">
+            <Puzzle className="h-6 w-6" /> RiddleMeThis Game
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           {error ? (
@@ -78,6 +78,6 @@ export default async function Home() {
           </Accordion>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }
