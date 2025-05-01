@@ -40,7 +40,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          disableTransitionOnChange // Ensure this is true to allow custom CSS transitions
         >
           <Header /> {/* Add Header component */}
           {/* Added flex-grow to main content area */}

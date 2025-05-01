@@ -93,6 +93,7 @@ body {
   }
   body {
     @apply bg-background text-foreground antialiased; /* Added antialiased */
+    @apply transition-colors duration-300 ease-in-out; /* Added transition for theme change */
     font-family: var(--font-geist-sans), system-ui, sans-serif; /* Use Geist Sans first */
   }
 }
