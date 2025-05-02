@@ -48,42 +48,42 @@ body {
   }
 
   .dark {
-    /* Dark Theme: Cyberpunk Glow */
-    --background: 0 0% 7%;      /* Very Dark Gray/Black */
-    --foreground: 0 0% 88%;      /* Light Gray */
-    --card: 0 0% 10%;      /* Dark Gray */
-    --card-foreground: 0 0% 88%; /* Light Gray */
-    --popover: 0 0% 10%;     /* Dark Gray */
-    --popover-foreground: 0 0% 88%; /* Light Gray */
-    --primary: 180 100% 50%;   /* Cyan Accent */
-    --primary-foreground: 0 0% 7%;     /* Very Dark Gray */
-    --secondary: 0 0% 16%;     /* Dark Gray (Slightly Lighter) */
-    --secondary-foreground: 0 0% 88%; /* Light Gray */
-    --muted: 0 0% 16%;      /* Dark Gray (Slightly Lighter) */
-    --muted-foreground: 0 0% 55%; /* Medium Gray */
-    --accent: 0 0% 16%;      /* Dark Gray (Slightly Lighter) */
-    --accent-foreground: 180 100% 50%; /* Cyan on hover */
-    --destructive: 0 80% 55%; /* Red */
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;      /* Dark Gray Border */
-    --input: 0 0% 20%;      /* Dark Gray Input Border */
-    --ring: 180 100% 60%;   /* Lighter Cyan for focus rings */
+    /* Dark Theme: Nocturne Bloom */
+    --background: 240 8% 10%;      /* Deep Charcoal Violet (#16161A) */
+    --foreground: 0 0% 93%;      /* Very Light Grey (#EDEDED) */
+    --card: 220 6% 15%;      /* Soft Graphite (#242629) */
+    --card-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --popover: 220 6% 15%;     /* Soft Graphite (#242629) */
+    --popover-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --primary: 258 87% 67%;   /* Electric Purple (#7F5AF0) */
+    --primary-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --secondary: 220 6% 15%;     /* Soft Graphite (#242629) */
+    --secondary-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --muted: 220 6% 15%;      /* Soft Graphite (#242629) */
+    --muted-foreground: 0 0% 70%; /* Dimmer Grey */
+    --accent: 220 6% 15%;      /* Soft Graphite (#242629) - Base for hover */
+    --accent-foreground: 258 87% 67%; /* Electric Purple for hover text/icons */
+    --destructive: 350 84% 60%; /* Raspberry Red (#EF4565) */
+    --destructive-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --border: 240 4% 17%;      /* Slate Grey (#2A2A2E) */
+    --input: 240 4% 17%;      /* Slate Grey (#2A2A2E) */
+    --ring: 258 87% 67%;   /* Electric Purple (#7F5AF0) */
 
-    --chart-1: 180 100% 50%; /* Primary Cyan */
-    --chart-2: 270 90% 70%; /* Vibrant Purple */
-    --chart-3: 60 100% 50%; /* Bright Yellow */
-    --chart-4: 330 95% 65%; /* Electric Pink */
-    --chart-5: 0 80% 55%;   /* Red */
+    --chart-1: 158 60% 44%; /* Soft Teal Green (#2CB67D) */
+    --chart-2: 30 89% 67%; /* Muted Orange (#F4A261) */
+    --chart-3: 326 100% 71%; /* Bubblegum Pink (#FF6AC1) */
+    --chart-4: 258 87% 67%; /* Electric Purple (#7F5AF0) */
+    --chart-5: 350 84% 60%; /* Raspberry Red (#EF4565) */
 
-    /* Sidebar - Adjusted for Cyberpunk Glow */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 88%;
-    --sidebar-primary: 180 100% 50%;
-    --sidebar-primary-foreground: 0 0% 7%;
-    --sidebar-accent: 0 0% 16%;
-    --sidebar-accent-foreground: 180 100% 50%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 180 100% 60%;
+    /* Sidebar - Adjusted for Nocturne Bloom */
+    --sidebar-background: 240 8% 10%;
+    --sidebar-foreground: 0 0% 93%;
+    --sidebar-primary: 258 87% 67%;
+    --sidebar-primary-foreground: 0 0% 93%;
+    --sidebar-accent: 220 6% 15%;
+    --sidebar-accent-foreground: 258 87% 67%;
+    --sidebar-border: 240 4% 17%;
+    --sidebar-ring: 258 87% 67%;
   }
 }
 
