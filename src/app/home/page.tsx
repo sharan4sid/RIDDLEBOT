@@ -4,26 +4,7 @@ import { Brain, History, Home, Puzzle, BrainCircuit } from 'lucide-react'; // Im
 export default function HomePage() {
   return (
     <div className="space-y-8">
-      {/* Welcome Card */}
-      <Card className="shadow-md border-border transition-transform duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-3xl font-bold flex items-center gap-3 text-foreground">
-            <BrainCircuit className="h-7 w-7 text-primary" /> {/* Using the same icon as header */}
-            <span>Welcome to prahelikā!</span> {/* Updated title */}
-          </CardTitle>
-          <CardDescription className="text-lg text-muted-foreground pt-1">
-            Your gateway to the intriguing world of riddles.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-base leading-relaxed">
-            Dive into the fascinating world of riddles! Whether you're a seasoned solver or just starting, this is your hub for everything riddle-related. Explore different types, learn how to sharpen your thinking, and discover the rich history behind these playful puzzles.
-          </p>
-          <p className="mt-3 text-base">
-            Ready to test your skills? Head over to the <strong className="text-primary">Game</strong> section!
-          </p>
-        </CardContent>
-      </Card>
+      {/* Welcome Card Removed */}
 
       {/* Grid for Info Cards - Changed to vertical stack */}
       <div className="grid grid-cols-1 gap-6"> {/* Removed md:grid-cols-3 */}
