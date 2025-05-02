@@ -8,82 +8,82 @@ body {
 
 @layer base {
   :root {
-    /* Redesigned Light Theme - Cooler Blue Tones */
-    --background: 220 20% 98%;    /* Very light cool gray */
-    --foreground: 220 15% 20%;    /* Dark cool gray */
-    --card: 220 20% 100%;   /* White */
-    --card-foreground: 220 15% 20%; /* Dark cool gray */
-    --popover: 220 20% 100%;  /* White */
-    --popover-foreground: 220 15% 20%; /* Dark cool gray */
-    --primary: 217 91% 60%;    /* Vibrant Blue */
-    --primary-foreground: 0 0% 100%;    /* White */
-    --secondary: 220 15% 94%;   /* Light cool gray */
-    --secondary-foreground: 220 10% 30%; /* Mid-dark cool gray */
-    --muted: 220 15% 90%;    /* Slightly darker cool gray */
-    --muted-foreground: 220 10% 45%; /* Mid cool gray */
-    --accent: 220 15% 90%;    /* Slightly darker cool gray for hover */
-    --accent-foreground: 220 15% 10%; /* Darker text on hover */
+    /* Light Theme: Soft Sky */
+    --background: 207 100% 97%;    /* Light Sky Blue */
+    --foreground: 215 39% 17%;    /* Dark Slate Blue */
+    --card: 215 100% 100%;   /* White */
+    --card-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --popover: 215 100% 100%;  /* White */
+    --popover-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --primary: 201 94% 59%;    /* Accent Sky Blue */
+    --primary-foreground: 210 40% 98%;    /* Almost White */
+    --secondary: 215 28% 91%;   /* Light Grayish Blue */
+    --secondary-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --muted: 215 28% 94%;    /* Very Light Grayish Blue */
+    --muted-foreground: 215 20% 45%; /* Medium Slate Blue */
+    --accent: 215 28% 94%;    /* Muted for hover */
+    --accent-foreground: 215 39% 10%; /* Darker Slate Blue */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 88%;    /* Cool gray border */
-    --input: 220 15% 88%;    /* Cool gray input border */
-    --ring: 217 91% 70%;    /* Slightly lighter blue for focus rings */
+    --border: 215 20% 87%;    /* Grayish Blue Border */
+    --input: 215 20% 87%;    /* Grayish Blue Input Border */
+    --ring: 201 94% 65%;    /* Lighter Accent Sky Blue */
 
-    --chart-1: 217 91% 60%; /* Primary Blue */
-    --chart-2: 173 58% 39%; /* Teal */
-    --chart-3: 43 74% 66%; /* Yellow */
-    --chart-4: 27 87% 67%; /* Orange */
-    --chart-5: 0 84.2% 60.2%; /* Red */
+    --chart-1: 201 94% 59%;   /* Primary */
+    --chart-2: 215 50% 55%;   /* Slate blue */
+    --chart-3: 160 70% 45%;   /* Teal */
+    --chart-4: 45 90% 55%;   /* Yellow-Orange */
+    --chart-5: 350 80% 60%;   /* Soft Red */
     --radius: 0.5rem;
 
-    /* Sidebar - Kept similar for now, can be adjusted if sidebar is used */
-    --sidebar-background: 220 20% 98%;
-    --sidebar-foreground: 220 15% 20%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 90%;
-    --sidebar-accent-foreground: 220 15% 10%;
-    --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 217 91% 70%;
+    /* Sidebar - Adjusted for Soft Sky */
+    --sidebar-background: 207 100% 97%;
+    --sidebar-foreground: 215 39% 17%;
+    --sidebar-primary: 201 94% 59%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 215 28% 94%;
+    --sidebar-accent-foreground: 215 39% 10%;
+    --sidebar-border: 215 20% 87%;
+    --sidebar-ring: 201 94% 65%;
   }
 
   .dark {
-    /* Redesigned Dark Theme - Cooler Blue Tones */
-    --background: 220 15% 10%;    /* Very dark cool gray */
-    --foreground: 220 20% 95%;    /* Very light cool gray */
-    --card: 220 15% 15%;    /* Dark cool gray */
-    --card-foreground: 220 20% 95%; /* Very light cool gray */
-    --popover: 220 15% 15%;   /* Dark cool gray */
-    --popover-foreground: 220 20% 95%; /* Very light cool gray */
-    --primary: 217 91% 60%;    /* Vibrant Blue */
-    --primary-foreground: 0 0% 100%;    /* White */
-    --secondary: 220 15% 25%;   /* Mid-dark cool gray */
-    --secondary-foreground: 220 10% 85%; /* Light cool gray */
-    --muted: 220 15% 30%;    /* Darker muted cool gray */
-    --muted-foreground: 220 10% 65%; /* Lighter muted text */
-    --accent: 220 15% 30%;    /* Darker accent cool gray */
-    --accent-foreground: 220 20% 98%; /* Very light gray */
-    --destructive: 0 72% 51%; /* Slightly adjusted destructive */
+    /* Dark Theme: Cyberpunk Glow */
+    --background: 0 0% 7%;      /* Very Dark Gray/Black */
+    --foreground: 0 0% 88%;      /* Light Gray */
+    --card: 0 0% 10%;      /* Dark Gray */
+    --card-foreground: 0 0% 88%; /* Light Gray */
+    --popover: 0 0% 10%;     /* Dark Gray */
+    --popover-foreground: 0 0% 88%; /* Light Gray */
+    --primary: 180 100% 50%;   /* Cyan Accent */
+    --primary-foreground: 0 0% 7%;     /* Very Dark Gray */
+    --secondary: 0 0% 16%;     /* Dark Gray (Slightly Lighter) */
+    --secondary-foreground: 0 0% 88%; /* Light Gray */
+    --muted: 0 0% 16%;      /* Dark Gray (Slightly Lighter) */
+    --muted-foreground: 0 0% 55%; /* Medium Gray */
+    --accent: 0 0% 16%;      /* Dark Gray (Slightly Lighter) */
+    --accent-foreground: 180 100% 50%; /* Cyan on hover */
+    --destructive: 0 80% 55%; /* Red */
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 30%;    /* Dark cool gray border */
-    --input: 220 15% 30%;    /* Dark cool gray input border */
-    --ring: 217 91% 70%;    /* Slightly lighter blue for focus rings */
+    --border: 0 0% 20%;      /* Dark Gray Border */
+    --input: 0 0% 20%;      /* Dark Gray Input Border */
+    --ring: 180 100% 60%;   /* Lighter Cyan for focus rings */
 
-    --chart-1: 217 91% 60%; /* Primary Blue */
-    --chart-2: 173 58% 45%; /* Teal */
-    --chart-3: 43 74% 70%; /* Yellow */
-    --chart-4: 27 87% 72%; /* Orange */
-    --chart-5: 0 72% 51%; /* Red */
+    --chart-1: 180 100% 50%; /* Primary Cyan */
+    --chart-2: 270 90% 70%; /* Vibrant Purple */
+    --chart-3: 60 100% 50%; /* Bright Yellow */
+    --chart-4: 330 95% 65%; /* Electric Pink */
+    --chart-5: 0 80% 55%;   /* Red */
 
-    /* Sidebar - Dark */
-    --sidebar-background: 220 15% 10%;
-    --sidebar-foreground: 220 20% 95%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 30%;
-    --sidebar-accent-foreground: 220 20% 98%;
-    --sidebar-border: 220 15% 30%;
-    --sidebar-ring: 217 91% 70%;
+    /* Sidebar - Adjusted for Cyberpunk Glow */
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 180 100% 50%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 180 100% 60%;
   }
 }
 
