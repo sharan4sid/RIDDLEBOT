@@ -25,8 +25,8 @@ export default function HomePage() {
         </CardContent>
       </Card>
 
-      {/* Grid for Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Grid for Info Cards - Changed to vertical stack */}
+      <div className="grid grid-cols-1 gap-6"> {/* Removed md:grid-cols-3 */}
 
         {/* Types of Riddles Card */}
         <Card className="shadow-md border-border flex flex-col transition-transform duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg">
