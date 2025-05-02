@@ -45,11 +45,11 @@ const chatWithRiddleBotPrompt = ai.definePrompt({
   name: 'chatWithRiddleBotPrompt',
   input: { schema: ChatInputSchema },
   output: { schema: ChatOutputSchema },
-  prompt: `You are a friendly chatbot assistant for the "RiddleMeThis" game. Your goal is to help users customize their riddle experience.
+  prompt: `You are a friendly chatbot assistant for the "prahelikā" game. Your goal is to help users customize their riddle experience.
 
 Available Actions:
 1. Change Difficulty: Users can ask to set the difficulty to 'easy', 'medium', or 'hard'.
-2. Select Topic: Users can ask for riddles about a specific topic (e.g., 'animals', 'science', 'history', 'food').
+2. Select Topic: Users can ask for riddles about a specific topic (e.g., 'animals', 'science', 'history', 'food', 'technology', 'nature').
 3. Chit-chat: Respond politely to greetings or general conversation.
 
 Your Task:
@@ -59,8 +59,8 @@ Respond appropriately to the user.
 
 Output Format:
 Provide your response in the specified JSON format.
-- If the user wants to change difficulty, set intent to "difficulty" and value to "easy", "medium", or "hard".
-- If the user wants to select a topic, set intent to "topic" and value to the requested topic (lowercase).
+- If the user wants to change difficulty, set intent to "difficulty" and value to "easy", "medium", or "hard". Respond confirmingly.
+- If the user wants to select a topic, set intent to "topic" and value to the requested topic (lowercase). Respond confirmingly.
 - If the user is just chatting, set intent to "chit_chat" and provide a friendly response.
 - If the intent is unclear or requests something else, set intent to "unknown" and ask for clarification or state you cannot fulfill the request.
 
@@ -110,15 +110,24 @@ const chatWithRiddleBotFlow = ai.defineFlow<
       return {
           ...output,
           intent: finalIntent,
+          // Make value lowercase if intent is topic or difficulty for consistency
+          value: (finalIntent === 'topic' || finalIntent === 'difficulty') && output.value ? output.value.toLowerCase() : output.value,
       };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error('Error in chatWithRiddleBotFlow:', errorMessage);
 
-        let userFriendlyMessage = "Sorry, I encountered an unexpected error. Please try again later.";
+        let userFriendlyMessage = "Sorry, I encountered an unexpected error processing your message. Please try again later.";
+
         if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
             console.warn('Chatbot prompt failed due to model overload.');
-            userFriendlyMessage = "The chatbot service is currently busy. Please try sending your message again in a moment.";
+            userFriendlyMessage = "The chatbot service is currently very busy. Please try sending your message again in a moment.";
+        } else if (errorMessage.toLowerCase().includes('fetch')) {
+            console.warn('Chatbot prompt failed due to a network fetch error.');
+            userFriendlyMessage = "Hmm, couldn't connect to the chatbot service right now. Please check your connection and try again.";
+        } else {
+            console.error('Unexpected error in chatbot flow:', errorMessage);
+            // Keep the generic message for other unexpected errors
         }
 
         // Return a valid ChatOutput object indicating an error occurred

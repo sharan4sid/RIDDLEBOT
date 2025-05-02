@@ -26,7 +26,9 @@ export default function GamePage() {
       setError(null);
       try {
         // Fetch initial riddle without specific constraints from context initially
+        console.log("GamePage: Fetching initial riddle...");
         const riddle = await generateRiddle({ constraints: '' });
+        console.log("GamePage: Initial riddle fetched successfully.");
         setInitialRiddleData(riddle);
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -36,6 +38,9 @@ export default function GamePage() {
         if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
            console.warn('Initial riddle fetch failed due to model overload.');
            setError('Oops! Our riddle generator is very popular right now and seems to be overloaded. Please try refreshing in a moment.');
+        } else if (errorMessage.toLowerCase().includes('fetch')) {
+             console.warn('Initial riddle fetch failed due to network fetch error.');
+             setError('Failed to connect to the riddle generator. Please check your internet connection and try refreshing.');
         } else {
            // Log unexpected errors less verbosely in UI, more in console
            console.error('Unexpected error fetching initial riddle:', errorMessage);

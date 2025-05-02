@@ -71,6 +71,11 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           const constraintsToSend = constraintsToUse ?? ''; // Use context constraints or empty string if null
           console.log("RiddleSolver: Fetching new riddle with constraints:", constraintsToSend);
           const newRiddle = await generateRiddle({ constraints: constraintsToSend });
+           // Validate the structure of the new riddle before setting state
+           if (!newRiddle || typeof newRiddle.riddle !== 'string' || typeof newRiddle.answer !== 'string' || typeof newRiddle.hint !== 'string') {
+              console.error("Invalid riddle structure received:", newRiddle);
+              throw new Error("Received invalid riddle data format from the server.");
+           }
           setRiddleData(newRiddle);
           // No need to update local constraints state anymore
           toast({ title: 'New Riddle Loaded!', description: 'Let the guessing begin!' });
@@ -80,10 +85,16 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           const errorMessage = error instanceof Error ? error.message : String(error);
           let userFriendlyError = "Could not load a new riddle. Please try again.";
           // Check specifically for overload/503 errors
-          if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+          if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded') || errorMessage.includes("Overload") ) {
              console.warn('New riddle fetch failed due to model overload.');
              userFriendlyError = 'Oops! Our riddle generator is very popular right now and seems to be overloaded. Please try getting a new riddle again in a moment.';
-          } else {
+          } else if (errorMessage.toLowerCase().includes('fetch') || errorMessage.includes("Network Error") ) {
+             console.warn('New riddle fetch failed due to network fetch error.');
+             userFriendlyError = 'Failed to connect to the riddle generator. Please check your connection and try again.';
+          } else if (errorMessage.includes("invalid riddle data format")) {
+              userFriendlyError = 'There was an issue with the riddle data received. Please try fetching again.';
+          }
+          else {
             // Log unexpected errors less verbosely in UI, more in console
             console.error('Unexpected error fetching new riddle:', errorMessage);
             userFriendlyError = 'Could not load a new riddle due to an unexpected error. Please try again.';
@@ -123,7 +134,15 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
 
 
     const handleGuess: SubmitHandler<AnswerFormData> = (data) => {
-      if (isCorrect) return; // Don't allow guessing if already correct
+      if (isCorrect || !riddleData?.answer || riddleData.answer === "Error" || riddleData.answer === "Overload" || riddleData.answer === "Network Error" || riddleData.answer === "Unexpected Error") {
+          console.warn("Attempted to guess on an invalid riddle state.");
+          toast({
+              title: "Cannot Guess Now",
+              description: "Please fetch a new riddle first.",
+              variant: "destructive"
+          });
+          return;
+      }; // Don't allow guessing if already correct or in error state
 
       // Comparison is already case-insensitive and trims whitespace
       const guess = data.answer.trim().toLowerCase();
@@ -160,6 +179,14 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
     };
 
     const showHint = () => {
+        if (!riddleData?.hint || riddleData.hint.includes("Error") || riddleData.hint.includes("busy") || riddleData.hint.includes("issue") || riddleData.hint.includes("hiccup")) {
+             toast({
+                title: "Hint Unavailable",
+                description: "Cannot show hint for the current riddle state.",
+                variant: "destructive"
+             });
+             return;
+        }
        toast({
           title: "Here's a Hint:",
           description: riddleData.hint,
@@ -170,6 +197,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
 
     const progressValue = (triesLeft / MAX_TRIES) * 100;
     const progressColor = triesLeft > 1 ? 'bg-primary' : 'bg-destructive'; // Change progress bar color on last try
+    const isErrorStateRiddle = !riddleData?.answer || ["Error", "Overload", "Network Error", "Unexpected Error"].includes(riddleData.answer);
 
 
     return (
@@ -193,7 +221,10 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                    <p className="ml-3 text-muted-foreground">Loading new riddle...</p>
                  </div>
               ) : (
-                <p className="text-lg md:text-xl text-center font-medium text-foreground whitespace-pre-wrap min-h-[60px]">
+                <p className={cn(
+                    "text-lg md:text-xl text-center font-medium text-foreground whitespace-pre-wrap min-h-[60px]",
+                     isErrorStateRiddle ? "text-destructive" : "" // Style error messages differently
+                   )}>
                   {riddleData.riddle}
                 </p>
               )}
@@ -204,17 +235,17 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                   <Label htmlFor="tries" className="text-xs font-medium text-muted-foreground whitespace-nowrap">Tries Left:</Label>
                    <Progress
                       id="tries"
-                      value={progressValue}
+                      value={isErrorStateRiddle ? 0 : progressValue} // Show 0 progress in error state
                       className="w-full h-2 bg-secondary"
-                      indicatorClassName={cn('transition-all', progressColor)} // Apply dynamic color
+                      indicatorClassName={cn('transition-all', isErrorStateRiddle ? 'bg-destructive' : progressColor)} // Apply dynamic color
                       aria-label={`${triesLeft} out of ${MAX_TRIES} tries remaining`} />
-                  <span className="text-xs font-medium text-muted-foreground w-8 text-right">{triesLeft}/{MAX_TRIES}</span>
+                  <span className="text-xs font-medium text-muted-foreground w-8 text-right">{isErrorStateRiddle ? '0' : triesLeft}/{MAX_TRIES}</span>
                </div>
                {/* Action Buttons */}
                <div className="flex gap-3">
                    <Tooltip>
                      <TooltipTrigger asChild>
-                       <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0} className="transition-transform duration-150 hover:scale-110 active:scale-100">
+                       <Button variant="outline" size="icon" onClick={showHint} aria-label="Show Hint" disabled={isFetching || isCorrect === true || triesLeft === 0 || isErrorStateRiddle} className="transition-transform duration-150 hover:scale-110 active:scale-100">
                          <Lightbulb className="h-5 w-5" />
                        </Button>
                      </TooltipTrigger>
@@ -239,7 +270,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           </Card>
 
           {/* Input Form Area */}
-          {triesLeft > 0 && isCorrect !== true && !isFetching && (
+          {triesLeft > 0 && isCorrect !== true && !isFetching && !isErrorStateRiddle && ( // Hide form in error state
             <form ref={formRef} onSubmit={handleSubmit(handleGuess)} className="space-y-3 transition-opacity duration-300 ease-in-out">
                <div className="relative">
                 <Label htmlFor="answer" className="sr-only">Your Answer</Label>
@@ -298,6 +329,21 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                </Button>
             </Alert>
           )}
+
+           {/* Show error state message if riddle failed to load initially or on retry */}
+           {isErrorStateRiddle && !isFetching && (
+               <Alert variant="destructive" className="bg-destructive/10 border-destructive/30 animate-in fade-in duration-300">
+                 <AlertCircle className="h-5 w-5" />
+                 <AlertTitle className="font-bold">Riddle Load Error</AlertTitle>
+                 <AlertDescription>
+                    {riddleData?.hint || "Could not load the riddle. Please try fetching a new one."} {/* Display hint as description */}
+                 </AlertDescription>
+                 <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
+                    {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
+                    Try Again {currentConstraints ? `(${currentConstraints})` : ''}
+                 </Button>
+               </Alert>
+           )}
         </div>
       </TooltipProvider>
     );

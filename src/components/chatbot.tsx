@@ -79,43 +79,41 @@ export default function Chatbot(/*{ onConstraintChange }: ChatbotProps*/) { // R
         const input: ChatInput = { message: data.message };
         const output: ChatOutput = await chatWithRiddleBot(input);
 
+         // Check if the bot returned an error message due to fetch/overload
+         if (output.intent === 'unknown' && (output.response.includes('error') || output.response.includes('busy') || output.response.includes('connect'))) {
+            toast({
+               title: "Chatbot Issue",
+               description: output.response,
+               variant: "destructive",
+             });
+          }
+
         const botMessage: ChatMessage = { role: 'bot', content: output.response };
         setChatHistory((prev) => [...prev, botMessage]);
 
-        // Update context if intent is recognized
-        if (output.intent === 'difficulty' && output.value) {
-          const constraintString = `difficulty: ${output.value}`;
+        // Update context if intent is recognized and not an error response
+        if ((output.intent === 'difficulty' || output.intent === 'topic') && output.value) {
+          const constraintString = `${output.intent}: ${output.value}`;
           console.log("Chatbot: Setting context constraints:", constraintString);
           setCurrentConstraints(constraintString); // Update context
           toast({
-              title: 'Difficulty Updated',
-              description: `Riddle difficulty set to: ${output.value}`,
+              title: output.intent === 'difficulty' ? 'Difficulty Updated' : 'Topic Updated',
+              description: `Riddle ${output.intent} set to: ${output.value}`,
               icon: <Sparkles className="h-5 w-5 text-primary" />,
             });
-          // Remove old callback call
-          // console.log("Chatbot: Sending difficulty update to parent:", output.value);
-          // onConstraintChange?.({ type: 'difficulty', value: output.value });
-        } else if (output.intent === 'topic' && output.value) {
-            const constraintString = `topic: ${output.value}`;
-            console.log("Chatbot: Setting context constraints:", constraintString);
-            setCurrentConstraints(constraintString); // Update context
-           toast({
-               title: 'Topic Updated',
-               description: `Riddle topic set to: ${output.value}`,
-               icon: <Sparkles className="h-5 w-5 text-primary" />,
-             });
-           // Remove old callback call
-            // console.log("Chatbot: Sending topic update to parent:", output.value);
-           // onConstraintChange?.({ type: 'topic', value: output.value });
         } else {
-           // If intent is chit_chat or unknown, maybe clear constraints?
-           // Or leave them as they are. Current behavior: leave as is.
-           // To clear: setCurrentConstraints('');
+           // If intent is chit_chat or unknown (and not an error message), leave constraints as they are.
+           // console.log("Chatbot: Intent is chit_chat or unknown, constraints unchanged.");
         }
 
       } catch (error) {
+        // This catch block might be less likely to hit now if the flow handles errors,
+        // but it's good practice to keep it for unexpected client-side issues.
         console.error('Error communicating with chatbot:', error);
-        const errorMessage: ChatMessage = { role: 'bot', content: 'Sorry, I seem to be having trouble connecting. Please try again in a moment.' };
+        const errorMessageContent = error instanceof Error && error.message.toLowerCase().includes('fetch')
+            ? 'Failed to connect to the chatbot service. Please check your connection and try again.'
+            : 'Sorry, I encountered an unexpected issue. Please try again in a moment.';
+        const errorMessage: ChatMessage = { role: 'bot', content: errorMessageContent };
         setChatHistory((prev) => [...prev, errorMessage]);
          toast({
           title: "Chat Error",
