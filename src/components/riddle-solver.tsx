@@ -125,6 +125,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
     const handleGuess: SubmitHandler<AnswerFormData> = (data) => {
       if (isCorrect) return; // Don't allow guessing if already correct
 
+      // Comparison is already case-insensitive and trims whitespace
       const guess = data.answer.trim().toLowerCase();
       const correctAnswer = riddleData.answer.trim().toLowerCase();
 
