@@ -70,7 +70,7 @@ export default function GamePage() {
         <CardHeader className="text-center bg-card pb-4">
           {/* Centered Title */}
           <CardTitle className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
-            <Puzzle className="h-6 w-6 text-primary" /> RiddleMeThis Game
+            <Puzzle className="h-6 w-6 text-primary" /> prahelikā Game {/* Updated title */}
           </CardTitle>
           <CardDescription>Test your wit against our AI Riddle Master!</CardDescription>
         </CardHeader>

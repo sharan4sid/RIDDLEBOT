@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, History, Home, Puzzle } from 'lucide-react'; // Import relevant icons
+import { Brain, History, Home, Puzzle, BrainCircuit } from 'lucide-react'; // Import relevant icons, added BrainCircuit
 
 export default function HomePage() {
   return (
@@ -8,8 +8,8 @@ export default function HomePage() {
       <Card className="shadow-md border-border transition-transform duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold flex items-center gap-3 text-foreground">
-            <Home className="h-7 w-7 text-primary" />
-            <span>Welcome to RiddleMeThis!</span>
+            <BrainCircuit className="h-7 w-7 text-primary" /> {/* Using the same icon as header */}
+            <span>Welcome to prahelikā!</span> {/* Updated title */}
           </CardTitle>
           <CardDescription className="text-lg text-muted-foreground pt-1">
             Your gateway to the intriguing world of riddles.

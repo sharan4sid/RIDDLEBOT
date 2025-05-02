@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'RiddleMeThis', // Update title
+  title: 'prahelikā', // Update title
   description: 'A fun riddle solving game powered by AI', // Update description
 };
 
