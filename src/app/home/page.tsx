@@ -70,24 +70,24 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        {/* History Card */}
+        {/* History Card - Updated Content */}
         <Card className="shadow-md border-border flex flex-col transition-transform duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
                <History className="h-5 w-5 text-primary" />
-              A Brief History
+              Riddles in Indian History
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-grow">
-             <p className="mb-3 text-sm text-muted-foreground">Riddles are ancient and cross-cultural:</p>
+             <p className="mb-3 text-sm text-muted-foreground">Riddles (Prahelikā) have a rich tradition in India:</p>
             <ul className="list-disc pl-5 space-y-1.5 text-sm leading-snug">
-              <li><strong>Ancient Times:</strong> Riddle of the Sphinx (Greek), Sumerian & Babylonian examples.</li>
-              <li><strong>Biblical:</strong> Samson's riddle (Hebrew Bible).</li>
-              <li><strong>Anglo-Saxon:</strong> Exeter Book (10th century Old English).</li>
-              <li><strong>Medieval/Renaissance:</strong> Popular in folklore, literature (Shakespeare).</li>
-              <li><strong>Modern Era:</strong> Persist in books, games, online.</li>
+              <li><strong>Ancient Texts:</strong> Found in Vedas, Upanishads, and Puranas, often conveying philosophical ideas.</li>
+              <li><strong>Epics:</strong> The Mahabharata features the famous "Yaksha Prashna," where Yudhisthira answers riddles posed by a Yaksha.</li>
+              <li><strong>Folklore & Literature:</strong> Riddles are integral to folk tales (like Vikram and Betal) and classical literature, used for wit and wisdom tests.</li>
+              <li><strong>Regional Diversity:</strong> Varying forms and styles exist across India's diverse languages and cultures (e.g., 'Paheli' in Hindi, 'Kadha' in Malayalam).</li>
+              <li><strong>Purpose:</strong> Used historically for education, entertainment, testing intelligence, and spiritual discourse.</li>
             </ul>
-             <p className="mt-3 text-sm leading-snug">Used for tests, entertainment, education, and rituals.</p>
+             <p className="mt-3 text-sm leading-snug">They remain a popular form of intellectual play and cultural expression.</p>
           </CardContent>
         </Card>
 
