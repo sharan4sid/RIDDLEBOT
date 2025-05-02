@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { GenerateRiddleOutput } from '@/ai/flows/generate-riddle';
@@ -12,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Lightbulb, Loader2, RefreshCcw, Smile, Frown, Info } from 'lucide-react'; // Added Info icon
+import { Lightbulb, Loader2, RefreshCcw, Smile, Frown, Info, AlertCircle } from 'lucide-react'; // Added Info, AlertCircle icons
 import { useToast } from '@/hooks/use-toast';
 import {
   Tooltip,
@@ -84,14 +85,16 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           console.error("Failed to fetch new riddle:", error);
           const errorMessage = error instanceof Error ? error.message : String(error);
           let userFriendlyError = "Could not load a new riddle. Please try again.";
+          const lowerErrorMessage = errorMessage.toLowerCase();
+
           // Check specifically for overload/503 errors
-          if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded') || errorMessage.includes("Overload") ) {
+          if (lowerErrorMessage.includes('503') || lowerErrorMessage.includes('overloaded') || lowerErrorMessage.includes("overload") ) {
              console.warn('New riddle fetch failed due to model overload.');
              userFriendlyError = 'Oops! Our riddle generator is very popular right now and seems to be overloaded. Please try getting a new riddle again in a moment.';
-          } else if (errorMessage.toLowerCase().includes('fetch') || errorMessage.includes("Network Error") ) {
-             console.warn('New riddle fetch failed due to network fetch error.');
+          } else if (lowerErrorMessage.includes('fetch') || lowerErrorMessage.includes('network') || lowerErrorMessage.includes("failed to fetch")) { // More specific check for fetch errors
+             console.warn('New riddle fetch failed due to network fetch error:', errorMessage);
              userFriendlyError = 'Failed to connect to the riddle generator. Please check your connection and try again.';
-          } else if (errorMessage.includes("invalid riddle data format")) {
+          } else if (lowerErrorMessage.includes("invalid riddle data format")) {
               userFriendlyError = 'There was an issue with the riddle data received. Please try fetching again.';
           }
           else {
@@ -107,6 +110,12 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           // Keep the old riddle, reset state
           setTriesLeft(MAX_TRIES);
           setIsCorrect(null);
+           // Display error state in the component itself
+          setRiddleData({
+               riddle: "Riddle Load Error",
+               answer: "Error", // Keep error state for answer checks
+               hint: userFriendlyError,
+           });
           reset({ answer: '' }); // Clear input just in case
         }
       });
@@ -118,10 +127,19 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
       setTriesLeft(MAX_TRIES);
       setIsCorrect(null);
       reset({ answer: '' });
-      if (formRef.current) { // Check if form exists
-        setFocus('answer'); // Set focus on the input field
-      }
-    }, [initialRiddle, reset, setFocus]); // Depend on initialRiddle object
+       // Check if the initial riddle itself indicates an error state
+       if (initialRiddle && initialRiddle.answer === "Error" && initialRiddle.hint) {
+           // Optionally show a toast on initial load error
+           // toast({
+           //    title: "Initial Load Error",
+           //    description: initialRiddle.hint,
+           //    variant: "destructive",
+           // });
+       } else if (formRef.current) { // Check if form exists and no initial error
+           setFocus('answer'); // Set focus on the input field
+       }
+    }, [initialRiddle, reset, setFocus, toast]); // Depend on initialRiddle object
+
 
     // Expose the updateConstraintsAndFetch function using useImperativeHandle
     // This remains useful if the parent (GamePage) needs to trigger a fetch directly
@@ -134,7 +152,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
 
 
     const handleGuess: SubmitHandler<AnswerFormData> = (data) => {
-      if (isCorrect || !riddleData?.answer || riddleData.answer === "Error" || riddleData.answer === "Overload" || riddleData.answer === "Network Error" || riddleData.answer === "Unexpected Error") {
+      if (isCorrect || !riddleData?.answer || ["Error", "Overload", "Network Error", "Unexpected Error"].includes(riddleData.answer)) {
           console.warn("Attempted to guess on an invalid riddle state.");
           toast({
               title: "Cannot Guess Now",
@@ -144,7 +162,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
           return;
       }; // Don't allow guessing if already correct or in error state
 
-      // Comparison is already case-insensitive and trims whitespace
+      // Comparison is case-insensitive and trims whitespace
       const guess = data.answer.trim().toLowerCase();
       const correctAnswer = riddleData.answer.trim().toLowerCase();
 
@@ -179,7 +197,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
     };
 
     const showHint = () => {
-        if (!riddleData?.hint || riddleData.hint.includes("Error") || riddleData.hint.includes("busy") || riddleData.hint.includes("issue") || riddleData.hint.includes("hiccup")) {
+        if (!riddleData?.hint || riddleData.answer === "Error" || riddleData.hint.includes("Error") || riddleData.hint.includes("busy") || riddleData.hint.includes("issue") || riddleData.hint.includes("hiccup") || riddleData.hint.includes("generator")) {
              toast({
                 title: "Hint Unavailable",
                 description: "Cannot show hint for the current riddle state.",
@@ -315,7 +333,7 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
             </Alert>
           )}
 
-          {triesLeft === 0 && isCorrect === false && !isFetching && (
+          {triesLeft === 0 && isCorrect === false && !isFetching && !isErrorStateRiddle && ( // Added !isErrorStateRiddle check
             <Alert variant="destructive" className="bg-destructive/10 border-destructive/30 animate-in fade-in duration-300">
               <Frown className="h-5 w-5" />
                <AlertTitle className="font-bold">Game Over!</AlertTitle>
@@ -336,7 +354,8 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
                  <AlertCircle className="h-5 w-5" />
                  <AlertTitle className="font-bold">Riddle Load Error</AlertTitle>
                  <AlertDescription>
-                    {riddleData?.hint || "Could not load the riddle. Please try fetching a new one."} {/* Display hint as description */}
+                     {/* Show the hint which now contains the user-friendly error message */}
+                    {riddleData?.hint || "Could not load the riddle. Please try fetching a new one."}
                  </AlertDescription>
                  <Button onClick={() => fetchNewRiddle()} className="mt-4 w-full sm:w-auto transition-transform duration-150 hover:scale-[1.02] active:scale-100" variant="secondary" size="sm" disabled={isFetching}>
                     {isFetching ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
@@ -353,3 +372,4 @@ const RiddleSolver = forwardRef<RiddleSolverRef, RiddleSolverProps>( // Use forw
 RiddleSolver.displayName = "RiddleSolver"; // Add display name for forwardRef
 
 export default RiddleSolver;
+

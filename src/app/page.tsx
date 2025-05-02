@@ -1,3 +1,4 @@
+
 'use client'; // Need to make this a client component to use useRef
 
 import { useRef, useContext } from 'react'; // Import useRef and useContext
@@ -29,16 +30,25 @@ export default function GamePage() {
         console.log("GamePage: Fetching initial riddle...");
         const riddle = await generateRiddle({ constraints: '' });
         console.log("GamePage: Initial riddle fetched successfully.");
-        setInitialRiddleData(riddle);
+         // Explicitly check if the fetched riddle indicates an error state
+         if (riddle && riddle.answer === "Error" && riddle.hint) {
+            console.warn("GamePage: Initial riddle fetch returned an error state:", riddle.hint);
+            setError(riddle.hint); // Use the error message from the hint
+            setInitialRiddleData(null); // Ensure data is null
+         } else {
+           setInitialRiddleData(riddle);
+         }
       } catch (e) {
+        // This catch block handles errors *during* the generateRiddle call itself (e.g., network errors)
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error('Error fetching initial riddle:', errorMessage); // Log the raw error
+        console.error('Error fetching initial riddle (catch block):', errorMessage);
+        const lowerErrorMessage = errorMessage.toLowerCase();
 
-        // Check specifically for overload/503 errors
-        if (errorMessage.includes('503') || errorMessage.toLowerCase().includes('overloaded')) {
+        // Check specifically for overload/503 errors or general fetch failures
+        if (lowerErrorMessage.includes('503') || lowerErrorMessage.includes('overloaded') || lowerErrorMessage.includes('overload')) {
            console.warn('Initial riddle fetch failed due to model overload.');
            setError('Oops! Our riddle generator is very popular right now and seems to be overloaded. Please try refreshing in a moment.');
-        } else if (errorMessage.toLowerCase().includes('fetch')) {
+        } else if (lowerErrorMessage.includes('fetch') || lowerErrorMessage.includes('network') || lowerErrorMessage.includes('failed to fetch')) {
              console.warn('Initial riddle fetch failed due to network fetch error.');
              setError('Failed to connect to the riddle generator. Please check your internet connection and try refreshing.');
         } else {
@@ -91,17 +101,8 @@ export default function GamePage() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : (
-             // Ensure initialRiddleData is not null before rendering RiddleSolver
-            initialRiddleData ? (
-               <RiddleSolver ref={riddleSolverRef} initialRiddle={initialRiddleData} /> // Pass the ref
-             ) : (
-               // This case handles if initialRiddleData is null even without a caught error (should be rare now)
-               <Alert variant="destructive" className="bg-destructive/10 border-destructive/30">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>Could not load initial riddle data. Please refresh.</AlertDescription>
-               </Alert>
-             )
+             // Pass initial data even if it's null (RiddleSolver handles null/error state)
+             <RiddleSolver ref={riddleSolverRef} initialRiddle={initialRiddleData!} /> // Pass the ref, assert non-null as error case is handled
           )}
         </CardContent>
       </Card>
@@ -110,3 +111,4 @@ export default function GamePage() {
     </div>
   );
 }
+
