@@ -4,7 +4,19 @@ import { Brain, History, Home, Puzzle, BrainCircuit } from 'lucide-react'; // Im
 export default function HomePage() {
   return (
     <div className="space-y-8">
-      {/* Welcome Card Removed */}
+      {/* Welcome Card */}
+       <Card className="mb-8 shadow-lg border-border transition-transform duration-200 ease-in-out hover:scale-[1.01] hover:shadow-xl">
+         <CardHeader className="bg-primary/10 rounded-t-lg"> {/* Lighter background */}
+           <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-foreground">
+             <BrainCircuit className="h-6 w-6 text-primary" /> Welcome to prahelikā!
+           </CardTitle>
+         </CardHeader>
+         <CardContent className="p-6">
+           <p className="text-base md:text-lg text-center text-muted-foreground leading-relaxed">
+             Explore the fascinating world of riddles! Learn about different types, sharpen your solving skills, and discover their rich history, especially within Indian culture. Get ready to challenge your mind in the <span className="font-semibold text-primary">Game</span> section!
+           </p>
+         </CardContent>
+       </Card>
 
       {/* Grid for Info Cards - Changed to vertical stack */}
       <div className="grid grid-cols-1 gap-6"> {/* Removed md:grid-cols-3 */}
