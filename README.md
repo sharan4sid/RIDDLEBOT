@@ -1,6 +1,7 @@
 # prahelikā - An AI-Powered Riddle Game
 
-![prahelikā Screenshot](https://placehold.co/800x400.png?text=prahelikā+App+Screenshot)
+![prahelikā Screenshot](https://placehold.co/800x400.png?text=prahelikā+App+Screenshot)<img width="1920" height="1080" alt="{4A38D9B2-EC21-4DDA-8047-18405F763538}" src="https://github.com/user-attachments/assets/1808f135-9e9d-4eba-8be5-9e671843e344" />
+
 *<p align="center">A fun and interactive riddle-solving game built with Next.js and Google's Genkit.</p>*
 
 ---
