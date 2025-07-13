@@ -50,15 +50,18 @@ CardTitle.displayName = "CardTitle"
 
 
 const CardDescription = React.forwardRef<
-  HTMLParagraphElement, // Changed to HTMLParagraphElement
-  React.HTMLAttributes<HTMLParagraphElement> // Changed HTMLDivElement to HTMLParagraphElement
->(({ className, ...props }, ref) => (
-  <p // Changed div to p
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement> & { asChild?: boolean }
+>(({ className, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "p"
+  return (
+    <Comp
+      ref={ref}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  )
+})
 CardDescription.displayName = "CardDescription"
 
 const CardContent = React.forwardRef<
