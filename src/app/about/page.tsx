@@ -65,10 +65,6 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground pt-6 text-center">
-            You can update the placeholder content in <code className="bg-muted px-1 py-0.5 rounded text-xs">src/app/about/page.tsx</code> with your personal information.
-          </p>
-
         </CardContent>
       </Card>
     </div>
