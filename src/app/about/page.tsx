@@ -21,7 +21,7 @@ export default function AboutPage() {
         <CardContent className="flex flex-col items-center space-y-6 p-8">
           <div className="relative h-36 w-36 rounded-full overflow-hidden shadow-lg border-2 border-primary ring-2 ring-primary/30">
             <Image
-              src=""
+              src="src/app/about/me.jpg"
               alt="Siddharth Sharan"
               width={200}
               height={200}
