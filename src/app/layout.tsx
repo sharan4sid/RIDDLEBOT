@@ -6,6 +6,7 @@ import Header from '@/components/header'; // Import Header component
 import { cn } from '@/lib/utils'; // Import cn for combining class names
 import { ThemeProvider } from '@/components/theme-provider'; // Import ThemeProvider
 import { RiddleProvider } from '@/context/riddle-context'; // Import RiddleProvider
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -51,6 +52,7 @@ export default function RootLayout({
             <Toaster /> {/* Add Toaster component */}
           </RiddleProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
