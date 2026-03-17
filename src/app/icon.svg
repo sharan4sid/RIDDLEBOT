@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Genkit Brain / Circuit Logo -->
+  <g stroke="#9145F6" stroke-width="48" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left Brain Hemisphere (Cloud/Brain shape) -->
+    <path d="M 120 280 C 80 280 48 248 48 208 C 48 160 80 128 120 128 C 130 90 170 64 216 64 C 270 64 312 106 312 160 L 312 360 C 312 410 270 448 220 448 C 170 448 130 408 130 360 C 130 320 160 290 200 290" />
+    
+    <!-- Top Right Circuit -->
+    <path d="M 312 160 L 420 160 C 440 160 450 140 450 120 L 450 80" />
+    <circle cx="450" cy="80" r="24" fill="#9145F6" />
+
+    <!-- Middle Right Circuit -->
+    <path d="M 230 290 L 440 290" />
+    <circle cx="440" cy="290" r="24" fill="#9145F6" />
+
+    <!-- Bottom Right Circuit -->
+    <path d="M 312 360 L 440 360 C 460 360 470 380 470 400 L 470 440" />
+    <circle cx="470" cy="440" r="24" fill="#9145F6" />
+  </g>
+</svg>

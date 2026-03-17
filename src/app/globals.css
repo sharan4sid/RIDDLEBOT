@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif; /* Added Geist Sans fallback */
+}
+
+@layer base {
+  :root {
+    /* Light Theme: Soft Sky */
+    --background: 207 100% 97%;    /* Light Sky Blue */
+    --foreground: 215 39% 17%;    /* Dark Slate Blue */
+    --card: 215 100% 100%;   /* White */
+    --card-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --popover: 215 100% 100%;  /* White */
+    --popover-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --primary: 201 94% 59%;    /* Accent Sky Blue */
+    --primary-foreground: 210 40% 98%;    /* Almost White */
+    --secondary: 215 28% 91%;   /* Light Grayish Blue */
+    --secondary-foreground: 215 39% 17%; /* Dark Slate Blue */
+    --muted: 215 28% 94%;    /* Very Light Grayish Blue */
+    --muted-foreground: 215 20% 45%; /* Medium Slate Blue */
+    --accent: 215 28% 94%;    /* Muted for hover */
+    --accent-foreground: 215 39% 10%; /* Darker Slate Blue */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 215 20% 87%;    /* Grayish Blue Border */
+    --input: 215 20% 87%;    /* Grayish Blue Input Border */
+    --ring: 201 94% 65%;    /* Lighter Accent Sky Blue */
+
+    --chart-1: 201 94% 59%;   /* Primary */
+    --chart-2: 215 50% 55%;   /* Slate blue */
+    --chart-3: 160 70% 45%;   /* Teal */
+    --chart-4: 45 90% 55%;   /* Yellow-Orange */
+    --chart-5: 350 80% 60%;   /* Soft Red */
+    --radius: 0.5rem;
+
+    /* Sidebar - Adjusted for Soft Sky */
+    --sidebar-background: 207 100% 97%;
+    --sidebar-foreground: 215 39% 17%;
+    --sidebar-primary: 201 94% 59%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 215 28% 94%;
+    --sidebar-accent-foreground: 215 39% 10%;
+    --sidebar-border: 215 20% 87%;
+    --sidebar-ring: 201 94% 65%;
+  }
+
+  .dark {
+    /* Dark Theme: Nocturne Bloom */
+    --background: 240 8% 10%;      /* Deep Charcoal Violet (#16161A) */
+    --foreground: 0 0% 93%;      /* Very Light Grey (#EDEDED) */
+    --card: 220 6% 15%;      /* Soft Graphite (#242629) */
+    --card-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --popover: 220 6% 15%;     /* Soft Graphite (#242629) */
+    --popover-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --primary: 258 87% 67%;   /* Electric Purple (#7F5AF0) */
+    --primary-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --secondary: 220 6% 15%;     /* Soft Graphite (#242629) */
+    --secondary-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --muted: 220 6% 15%;      /* Soft Graphite (#242629) */
+    --muted-foreground: 0 0% 70%; /* Dimmer Grey */
+    --accent: 220 6% 15%;      /* Soft Graphite (#242629) - Base for hover */
+    --accent-foreground: 258 87% 67%; /* Electric Purple for hover text/icons */
+    --destructive: 350 84% 60%; /* Raspberry Red (#EF4565) */
+    --destructive-foreground: 0 0% 93%; /* Very Light Grey (#EDEDED) */
+    --border: 240 4% 17%;      /* Slate Grey (#2A2A2E) */
+    --input: 240 4% 17%;      /* Slate Grey (#2A2A2E) */
+    --ring: 258 87% 67%;   /* Electric Purple (#7F5AF0) */
+
+    --chart-1: 158 60% 44%; /* Soft Teal Green (#2CB67D) */
+    --chart-2: 30 89% 67%; /* Muted Orange (#F4A261) */
+    --chart-3: 326 100% 71%; /* Bubblegum Pink (#FF6AC1) */
+    --chart-4: 258 87% 67%; /* Electric Purple (#7F5AF0) */
+    --chart-5: 350 84% 60%; /* Raspberry Red (#EF4565) */
+
+    /* Sidebar - Adjusted for Nocturne Bloom */
+    --sidebar-background: 240 8% 10%;
+    --sidebar-foreground: 0 0% 93%;
+    --sidebar-primary: 258 87% 67%;
+    --sidebar-primary-foreground: 0 0% 93%;
+    --sidebar-accent: 220 6% 15%;
+    --sidebar-accent-foreground: 258 87% 67%;
+    --sidebar-border: 240 4% 17%;
+    --sidebar-ring: 258 87% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased; /* Added antialiased */
+    @apply transition-colors duration-300 ease-in-out; /* Added transition for theme change */
+    font-family: var(--font-geist-sans), system-ui, sans-serif; /* Use Geist Sans first */
+  }
+}
