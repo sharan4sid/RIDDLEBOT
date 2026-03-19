@@ -55,5 +55,3 @@ Open [http://localhost:9002](http://localhost:9002) in your browser to see the r
 - If the AI gets overloaded, the application will automatically fall back to its curated riddle bank.
 
 ---
-
-*This is a Next.js starter adapted for Firebase Studio.*
