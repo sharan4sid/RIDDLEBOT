@@ -1,7 +1,7 @@
 // client/src/api/api.js
 // Centralized fetch API service wrapper
 
-const API_BASE = '/api';
+const API_BASE = 'https://prahelika-api.onrender.com/api';
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('prahelika_token');
