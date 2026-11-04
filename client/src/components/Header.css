@@ -1,0 +1,121 @@
+/* client/src/components/Header.css */
+/* Identical header dimensions, colors, and layout preserved from V1 */
+
+.site-header {
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    position: relative;
+    z-index: 100;
+}
+
+.header-container {
+    width: 100%;
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.logo-icon {
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.nav-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    background-color: var(--nav-active-bg);
+    color: var(--accent);
+}
+
+.nav-link.active svg {
+    color: var(--accent);
+}
+
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-badge {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+
+.logout-btn {
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.2s ease;
+}
+
+.logout-btn:hover {
+    color: #f44336;
+}
+
+@media (max-width: 900px) {
+    .header-container {
+        padding: 0 16px;
+    }
+    .nav-link span {
+        display: none;
+    }
+}
