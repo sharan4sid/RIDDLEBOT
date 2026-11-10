@@ -63,8 +63,6 @@ npm test         # Executes automated AI service test suite
 npm run dev      # Starts Express backend on http://localhost:5000
 ```
 
-*Default Admin Account*: `admin@prahelika.com` / `admin123`
-
 ### 3. Frontend Setup
 
 ```bash
